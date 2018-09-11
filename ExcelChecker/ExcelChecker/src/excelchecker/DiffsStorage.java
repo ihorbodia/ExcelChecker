@@ -13,9 +13,4 @@ import java.util.ArrayList;
  */
 public final class DiffsStorage {
     public static ArrayList<String> differences;
-
-    private DiffsStorage() {
-        differences = new ArrayList<String>();
-    }
-    
 }

@@ -5,35 +5,37 @@
  */
 package excelchecker;
 
+import static excelchecker.DiffsStorage.differences;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
 import static org.apache.poi.ss.usermodel.CellType.STRING;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
  * @author ibodia
  */
-public class ExcelProcessor {
-
-    public String outputPath;
+public class ExcelProcessor implements Runnable {
 
     String firstExcelFileName;
     String secondExcelFileName;
 
     Sheet firstWorkerDatatypeSheet;
     Sheet secondWorkerDatatypeSheet;
-
-    ArrayList<String> differences;
 
     public ExcelProcessor(File firstFile, File secondFile) throws FileNotFoundException, IOException {
 
@@ -49,8 +51,6 @@ public class ExcelProcessor {
         Workbook secondWorkerWorkbook = new XSSFWorkbook(secondWorkerExcelFile);
         secondWorkerDatatypeSheet = secondWorkerWorkbook.getSheetAt(0);
 
-        this.outputPath = outputPath;
-        differences = new ArrayList<>();
     }
 
     private boolean isCellEmpty(final Cell cell) {
@@ -62,34 +62,52 @@ public class ExcelProcessor {
         }
         return false;
     }
+    
+    private String getCellData(final Cell cell) {
+        if (cell == null || cell.getCellType() == CellType.NUMERIC) {
+            return NumberToTextConverter.toText(cell.getNumericCellValue()).trim();
+        }
+        else if (cell == null || cell.getCellType() == CellType.STRING)
+        {
+            return cell.getStringCellValue().trim();
+        }
+        return null;
+    }
 
-    public ArrayList<String> compareFiles() {
-        boolean inData = true;
-
+    public void compareFiles() {
         Iterator<Row> rowIterator = firstWorkerDatatypeSheet.rowIterator();
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            if (row == null || isCellEmpty(row.getCell(0))) {
-                inData = false;
-            } else {
-                Row searchedRow = findRow(secondWorkerDatatypeSheet, row.getCell(row.getFirstCellNum()).getStringCellValue().trim());
-                if (row.getCell(row.getFirstCellNum() + 1).getNumericCellValue()
-                        != searchedRow.getCell(row.getFirstCellNum() + 1).getNumericCellValue()
-                        || row.getCell(row.getFirstCellNum() + 2).getNumericCellValue()
-                        != searchedRow.getCell(row.getFirstCellNum() + 2).getNumericCellValue()) {
-                    differences.add(row.getCell(row.getFirstCellNum()).getStringCellValue().trim());
+            if (row != null && !isCellEmpty(row.getCell(0))) {
+                try {
+                    String cellData = getCellData(row.getCell(row.getFirstCellNum()));
+                    Row searchedRow = findRow(secondWorkerDatatypeSheet, cellData);
+                    if (getCellData(row.getCell(row.getFirstCellNum() + 1)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 1)))
+                            && 
+                            getCellData(row.getCell(row.getFirstCellNum() + 2)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 2)))) {
+                    }
+                    else
+                    {
+                        differences.add(getCellData(row.getCell(row.getFirstCellNum())));
+                    }
+                } catch (IllegalStateException ex) {
+                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in compareFiles method.", ex);
                 }
             }
         }
-        return differences;
     }
 
-    private static Row findRow(Sheet sheet, String cellContent) {
+    private Row findRow(Sheet sheet, String cellContent) {
         for (Row row : sheet) {
-            if (row.getCell(row.getFirstCellNum()).getStringCellValue().trim().equals(cellContent)) {
+            if (getCellData(row.getCell(row.getFirstCellNum())).equals(cellContent)) {
                 return row;
             }
         }
         return null;
+    }
+
+    @Override
+    public void run() {
+        compareFiles();
     }
 }

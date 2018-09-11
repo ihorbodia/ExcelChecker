@@ -5,6 +5,7 @@
  */
 package excelchecker;
 
+import static excelchecker.DiffsStorage.differences;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -23,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -39,17 +45,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class ExcelChecker extends JFrame {
 
-    public static ArrayList<String> differences;
-
     FileDialog fc;
     private static final int buttonWidth = 100;
     private static final int buttonHeight = 25;
 
     private static String firstWorkerPath;
     private static String secondWorkerPath;
-
-    private static String firstWorkerPathLabel;
-    private static String secondWorkerPathLabel;
 
     ExcelChecker() {
         super("ExcelChecker");
@@ -100,6 +101,10 @@ public class ExcelChecker extends JFrame {
                     proceedFiles(firstWorkerPath, secondWorkerPath);
                 } catch (IOException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -137,7 +142,7 @@ public class ExcelChecker extends JFrame {
         return ("..\\" + parent2.getName() + "\\" + parent.getName() + "\\" + file.getName());
     }
 
-    public void proceedFiles(String firstWorkerPath, String secondWorkerPath) throws IOException {
+    public void proceedFiles(String firstWorkerPath, String secondWorkerPath) throws IOException, InterruptedException, ExecutionException {
         File dir = new File(firstWorkerPath);
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
@@ -153,16 +158,12 @@ public class ExcelChecker extends JFrame {
                                 secondExcelFile = file;
                             }
                         }
-                        differences.addAll(new ExcelProcessor(firstWorkerExcelFile, secondExcelFile).compareFiles());
+                        Thread t = new Thread(new ExcelProcessor(firstWorkerExcelFile, secondExcelFile));
+                        t.start();
                     }
                 }
             }
-        } else {
-            // Handle the case where dir is not really a directory.
-            // Checking dir.isDirectory() above would not be sufficient
-            // to avoid race conditions with another process that deletes
-            // directories.
-        }
+        } 
         storeOutputFile();
     }
 
