@@ -96,12 +96,16 @@ public class ExcelProcessor implements Runnable {
                                 && getCellData(row.getCell(row.getFirstCellNum() + 2)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 2)))) {
                         } else {
                             synchronized (DS) {
-                                differences.add(getCellData(row.getCell(row.getFirstCellNum())));
+                                if (!differences.contains(firstExcelFileName)) {
+                                    differences.add(firstExcelFileName);
+                                }
                             }
                         }
                     } else {
                         synchronized (DS) {
-                            differences.add(getCellData(row.getCell(row.getFirstCellNum())));
+                            if (!differences.contains(firstExcelFileName)) {
+                                differences.add(firstExcelFileName);
+                            }
                         }
                     }
                 } catch (IllegalStateException ex) {

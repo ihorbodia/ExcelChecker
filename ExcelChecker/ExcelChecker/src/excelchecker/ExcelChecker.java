@@ -51,6 +51,7 @@ public class ExcelChecker extends JFrame {
     ExcelChecker() {
         super("ExcelChecker");
         setSize(400, 300);
+        setTitle("Excel processor v3");
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(new BorderLayout());
@@ -163,9 +164,16 @@ public class ExcelChecker extends JFrame {
     }
 
     public String getFileNameLabelPath(File file) {
+        String result = "..\\";
         File parent = file.getParentFile();
-        File parent2 = parent.getParentFile();
-        return ("..\\" + parent2.getName() + "\\" + parent.getName() + "\\" + file.getName());
+        if (parent != null) {
+            result += parent.getName() + "\\" + file.getName();
+        }
+        else 
+        {
+             result += file.getName();
+        }
+        return result;
     }
 
     public File selectFolder() throws IOException {
