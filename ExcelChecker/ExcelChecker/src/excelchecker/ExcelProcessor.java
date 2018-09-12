@@ -36,14 +36,22 @@ public class ExcelProcessor implements Runnable {
 
     Sheet firstWorkerDatatypeSheet;
     Sheet secondWorkerDatatypeSheet;
-    
-    DiffsStorage DS;
+
+    final DiffsStorage DS;
 
     public ExcelProcessor(File firstFile, File secondFile, DiffsStorage storage) throws FileNotFoundException, IOException {
 
-        firstExcelFileName = firstFile.getName();
-        secondExcelFileName = secondFile.getName();
-        
+        if (firstFile != null) {
+            firstExcelFileName = firstFile.getName();
+        } else {
+            System.out.printf("Something wrong in first method " + secondFile.getName());
+        }
+        if (secondFile != null) {
+            secondExcelFileName = secondFile.getName();
+        } else {
+            System.out.printf("Something wrong in secondfile method " + firstFile.getName());
+        }
+
         DS = storage;
 
         FileInputStream firstWorkerExcelFile = new FileInputStream(firstFile);
@@ -83,11 +91,16 @@ public class ExcelProcessor implements Runnable {
                 try {
                     String cellData = getCellData(row.getCell(row.getFirstCellNum()));
                     Row searchedRow = findRow(secondWorkerDatatypeSheet, cellData);
-                    if (getCellData(row.getCell(row.getFirstCellNum() + 1)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 1)))
-                            && getCellData(row.getCell(row.getFirstCellNum() + 2)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 2)))) {
+                    if (searchedRow != null) {
+                        if (getCellData(row.getCell(row.getFirstCellNum() + 1)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 1)))
+                                && getCellData(row.getCell(row.getFirstCellNum() + 2)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 2)))) {
+                        } else {
+                            synchronized (DS) {
+                                differences.add(getCellData(row.getCell(row.getFirstCellNum())));
+                            }
+                        }
                     } else {
-                        synchronized(DS)
-                        {
+                        synchronized (DS) {
                             differences.add(getCellData(row.getCell(row.getFirstCellNum())));
                         }
                     }
