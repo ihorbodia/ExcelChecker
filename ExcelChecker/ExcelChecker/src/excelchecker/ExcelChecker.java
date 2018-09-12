@@ -117,6 +117,8 @@ public class ExcelChecker extends JFrame {
                                 }).start();
                             } catch (Exception ex) {
                                 Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
+                                statusValueLabel.setText("Something wrong...");
+                                buttonProceedFiles.setEnabled(true);
                             }
                         }
                     });
