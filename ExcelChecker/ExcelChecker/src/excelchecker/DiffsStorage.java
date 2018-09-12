@@ -12,5 +12,10 @@ import java.util.ArrayList;
  * @author ibodia
  */
 public final class DiffsStorage {
+
     public static ArrayList<String> differences;
+
+    DiffsStorage() {
+        differences = new ArrayList<>();
+    }
 }

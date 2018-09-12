@@ -36,11 +36,15 @@ public class ExcelProcessor implements Runnable {
 
     Sheet firstWorkerDatatypeSheet;
     Sheet secondWorkerDatatypeSheet;
+    
+    DiffsStorage DS;
 
-    public ExcelProcessor(File firstFile, File secondFile) throws FileNotFoundException, IOException {
+    public ExcelProcessor(File firstFile, File secondFile, DiffsStorage storage) throws FileNotFoundException, IOException {
 
         firstExcelFileName = firstFile.getName();
         secondExcelFileName = secondFile.getName();
+        
+        DS = storage;
 
         FileInputStream firstWorkerExcelFile = new FileInputStream(firstFile);
         FileInputStream secondWorkerExcelFile = new FileInputStream(secondFile);
@@ -50,7 +54,6 @@ public class ExcelProcessor implements Runnable {
 
         Workbook secondWorkerWorkbook = new XSSFWorkbook(secondWorkerExcelFile);
         secondWorkerDatatypeSheet = secondWorkerWorkbook.getSheetAt(0);
-
     }
 
     private boolean isCellEmpty(final Cell cell) {
@@ -62,13 +65,11 @@ public class ExcelProcessor implements Runnable {
         }
         return false;
     }
-    
+
     private String getCellData(final Cell cell) {
         if (cell == null || cell.getCellType() == CellType.NUMERIC) {
             return NumberToTextConverter.toText(cell.getNumericCellValue()).trim();
-        }
-        else if (cell == null || cell.getCellType() == CellType.STRING)
-        {
+        } else if (cell == null || cell.getCellType() == CellType.STRING) {
             return cell.getStringCellValue().trim();
         }
         return null;
@@ -83,12 +84,12 @@ public class ExcelProcessor implements Runnable {
                     String cellData = getCellData(row.getCell(row.getFirstCellNum()));
                     Row searchedRow = findRow(secondWorkerDatatypeSheet, cellData);
                     if (getCellData(row.getCell(row.getFirstCellNum() + 1)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 1)))
-                            && 
-                            getCellData(row.getCell(row.getFirstCellNum() + 2)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 2)))) {
-                    }
-                    else
-                    {
-                        differences.add(getCellData(row.getCell(row.getFirstCellNum())));
+                            && getCellData(row.getCell(row.getFirstCellNum() + 2)).equals(getCellData(searchedRow.getCell(row.getFirstCellNum() + 2)))) {
+                    } else {
+                        synchronized(DS)
+                        {
+                            differences.add(getCellData(row.getCell(row.getFirstCellNum())));
+                        }
                     }
                 } catch (IllegalStateException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in compareFiles method.", ex);

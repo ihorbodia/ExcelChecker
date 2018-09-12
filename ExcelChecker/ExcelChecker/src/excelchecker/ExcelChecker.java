@@ -12,15 +12,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -28,12 +24,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
@@ -49,13 +42,14 @@ public class ExcelChecker extends JFrame {
     private static final int buttonWidth = 100;
     private static final int buttonHeight = 25;
 
-    private static String firstWorkerPath;
-    private static String secondWorkerPath;
+    private static String firstWorkerPath = "";
+    private static String secondWorkerPath = "";
+
+    JLabel statusValueLabel = new JLabel("Choose folders");
+    Thread workThread;
 
     ExcelChecker() {
         super("ExcelChecker");
-
-        differences = new ArrayList<>();
         setSize(400, 300);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -66,6 +60,7 @@ public class ExcelChecker extends JFrame {
 
         JLabel firstWorkerPathLabelTitle = new JLabel("First worker path:");
         JLabel secondWorkerPathLabelTitle = new JLabel("Second worker path:");
+        JLabel statusLabel = new JLabel("Status:");
 
         Button buttonChooseFirstWorkerFilesPath = new Button("Worker 1 files.."); // Create and add a Button
         buttonChooseFirstWorkerFilesPath.addActionListener(new ActionListener() {
@@ -74,6 +69,9 @@ public class ExcelChecker extends JFrame {
                     File f = selectFolder();
                     firstWorkerPath = f.getAbsolutePath();
                     firstWorkerPathLabel.setText(getFileNameLabelPath(f));
+                    if (!firstWorkerPath.isEmpty() && !secondWorkerPath.isEmpty()) {
+                        statusValueLabel.setText("You can start process files");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -87,33 +85,60 @@ public class ExcelChecker extends JFrame {
                     File f = selectFolder();
                     secondWorkerPath = f.getAbsolutePath();
                     secondWorkerPathLabel.setText(getFileNameLabelPath(f));
+                    if (!firstWorkerPath.isEmpty() && !secondWorkerPath.isEmpty()) {
+                        statusValueLabel.setText("You can start process files");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
 
-        Button buttonProceedFiles = new Button("Proceed files.."); // Create and add a Button
+        Button buttonProceedFiles = new Button("Proceed files..");
         buttonProceedFiles.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                buttonProceedFiles.setEnabled(false);
+                statusValueLabel.setText("Processing...");
                 try {
-                    proceedFiles(firstWorkerPath, secondWorkerPath);
-                } catch (IOException ex) {
-                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ExecutionException ex) {
+                    workThread = new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                new FileProcessor(firstWorkerPath, secondWorkerPath);
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        while (!workThread.isAlive()) {
+                                            statusValueLabel.setText("Finished");
+                                            buttonProceedFiles.setEnabled(true);
+                                            break;
+                                        }
+                                    }
+                                }).start();
+                            } catch (Exception ex) {
+                                Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+                    workThread.start();
+                } catch (Exception ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
             }
         });
+
         JPanel mainPanel = new JPanel(new GridLayout(10, 0, 5, 5));
 
         mainPanel.add(firstWorkerPathLabelTitle);
         mainPanel.add(firstWorkerPathLabel);
         mainPanel.add(secondWorkerPathLabelTitle);
         mainPanel.add(secondWorkerPathLabel);
+        mainPanel.add(new JPanel());
+        mainPanel.add(new JPanel());
+        mainPanel.add(new JPanel());
+        mainPanel.add(statusLabel);
+        mainPanel.add(statusValueLabel);
 
         JPanel panel = new JPanel(new GridLayout(0, 4, 5, 3));
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -138,33 +163,7 @@ public class ExcelChecker extends JFrame {
     public String getFileNameLabelPath(File file) {
         File parent = file.getParentFile();
         File parent2 = parent.getParentFile();
-        System.out.println(file.getParent());
         return ("..\\" + parent2.getName() + "\\" + parent.getName() + "\\" + file.getName());
-    }
-
-    public void proceedFiles(String firstWorkerPath, String secondWorkerPath) throws IOException, InterruptedException, ExecutionException {
-        File dir = new File(firstWorkerPath);
-        File[] directoryListing = dir.listFiles();
-        if (directoryListing != null) {
-            for (File firstWorkerCountrySubDir : directoryListing) {
-                if (firstWorkerCountrySubDir.isDirectory()) {
-                    File secondWorkerCountrySubDir = new File(secondWorkerPath + "\\" + firstWorkerCountrySubDir.getName());
-                    File[] secondWorkerFilesListing = secondWorkerCountrySubDir.listFiles();
-
-                    for (File firstWorkerExcelFile : firstWorkerCountrySubDir.listFiles()) {
-                        File secondExcelFile = null;
-                        for (File file : secondWorkerFilesListing) {
-                            if (file.getName().startsWith(firstWorkerExcelFile.getName())) {
-                                secondExcelFile = file;
-                            }
-                        }
-                        Thread t = new Thread(new ExcelProcessor(firstWorkerExcelFile, secondExcelFile));
-                        t.start();
-                    }
-                }
-            }
-        } 
-        storeOutputFile();
     }
 
     public File selectFolder() throws IOException {
@@ -172,11 +171,8 @@ public class ExcelChecker extends JFrame {
         JFileChooser chooser = new JFileChooser(path);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         File f = null;
-        //int returnVal = chooser.showSaveDialog(this);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             f = chooser.getSelectedFile();
-        } else {
-            // user changed their mind
         }
         return f;
     }
@@ -185,27 +181,4 @@ public class ExcelChecker extends JFrame {
         new ExcelChecker().setVisible(true);
     }
 
-    public void storeOutputFile() {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Sheet");
-
-        int rowNum = 0;
-        System.out.println("Creating excel");
-
-        for (String diff : differences) {
-            Cell cell = sheet.createRow(rowNum++).createCell(0);
-            cell.setCellValue(diff);
-        }
-
-        try {
-            String path = javax.swing.filechooser.FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
-            FileOutputStream outputStream = new FileOutputStream(new File(path + "\\" + "report.xlsx"));
-            workbook.write(outputStream);
-            workbook.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
