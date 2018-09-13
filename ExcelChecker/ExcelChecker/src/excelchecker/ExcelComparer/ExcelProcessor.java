@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package excelchecker;
+package excelchecker.ExcelComparer;
 
-import static excelchecker.DiffsStorage.differences;
+import excelchecker.ExcelChecker;
+import excelchecker.ExcelComparer.DiffsStorage;
+import static excelchecker.ExcelComparer.DiffsStorage.differences;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.poi.ss.usermodel.Cell;

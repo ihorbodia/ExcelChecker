@@ -5,7 +5,8 @@
  */
 package excelchecker;
 
-import static excelchecker.DiffsStorage.differences;
+import excelchecker.ExcelComparer.FileProcessor;
+import static excelchecker.ExcelComparer.DiffsStorage.differences;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,10 +20,12 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -65,6 +68,7 @@ public class ExcelChecker extends JFrame {
 
         Button buttonChooseFirstWorkerFilesPath = new Button("Worker 1 files.."); // Create and add a Button
         buttonChooseFirstWorkerFilesPath.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     File f = selectFolder();
@@ -81,6 +85,7 @@ public class ExcelChecker extends JFrame {
 
         Button buttonChooseSecondWorkerFilesPath = new Button("Worker 2 files.."); // Create and add a Button
         buttonChooseSecondWorkerFilesPath.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     File f = selectFolder();
@@ -103,6 +108,7 @@ public class ExcelChecker extends JFrame {
                 statusValueLabel.setText("Processing...");
                 try {
                     workThread = new Thread(new Runnable() {
+                        @Override
                         public void run() {
                             try {
                                 new FileProcessor(firstWorkerPath, secondWorkerPath);
@@ -157,6 +163,7 @@ public class ExcelChecker extends JFrame {
         this.add(panel, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 dispose();
             }
