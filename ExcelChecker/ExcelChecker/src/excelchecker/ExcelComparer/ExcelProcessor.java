@@ -5,8 +5,10 @@
  */
 package excelchecker.ExcelComparer;
 
+import static excelchecker.Common.ExcelHelper.findRow;
+import static excelchecker.Common.ExcelHelper.getCellData;
+import static excelchecker.Common.ExcelHelper.isCellEmpty;
 import excelchecker.ExcelChecker;
-import excelchecker.ExcelComparer.DiffsStorage;
 import static excelchecker.ExcelComparer.DiffsStorage.differences;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,14 +17,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import static org.apache.poi.ss.usermodel.CellType.BLANK;
-import static org.apache.poi.ss.usermodel.CellType.STRING;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
@@ -64,25 +61,6 @@ public class ExcelProcessor implements Runnable {
         secondWorkerDatatypeSheet = secondWorkerWorkbook.getSheetAt(0);
     }
 
-    private boolean isCellEmpty(final Cell cell) {
-        if (cell == null || cell.getCellType() == BLANK) {
-            return true;
-        }
-        if (cell.getCellType() == STRING && cell.getStringCellValue().isEmpty()) {
-            return true;
-        }
-        return false;
-    }
-
-    private String getCellData(final Cell cell) {
-        if (cell == null || cell.getCellType() == CellType.NUMERIC) {
-            return NumberToTextConverter.toText(cell.getNumericCellValue()).trim();
-        } else if (cell == null || cell.getCellType() == CellType.STRING) {
-            return cell.getStringCellValue().trim();
-        }
-        return null;
-    }
-
     public void compareFiles() {
         Iterator<Row> rowIterator = firstWorkerDatatypeSheet.rowIterator();
         while (rowIterator.hasNext()) {
@@ -113,15 +91,6 @@ public class ExcelProcessor implements Runnable {
                 }
             }
         }
-    }
-
-    private Row findRow(Sheet sheet, String cellContent) {
-        for (Row row : sheet) {
-            if (getCellData(row.getCell(row.getFirstCellNum())).equals(cellContent)) {
-                return row;
-            }
-        }
-        return null;
     }
 
     @Override
