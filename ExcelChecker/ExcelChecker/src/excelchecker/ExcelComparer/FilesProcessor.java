@@ -14,13 +14,13 @@ import java.util.concurrent.ExecutionException;
  *
  * @author ibodia
  */
-public class FileProcessor {
+public class FilesProcessor {
 
     String firstWorkerPath;
     String secondWorkerPath;
     DiffsStorage DS;
 
-    public FileProcessor(String firstWorkerPath, String secondWorkerPath) throws IOException, InterruptedException, ExecutionException {
+    public FilesProcessor(String firstWorkerPath, String secondWorkerPath) throws IOException, InterruptedException, ExecutionException {
         this.firstWorkerPath = firstWorkerPath;
         this.secondWorkerPath = secondWorkerPath;
         this.DS = new DiffsStorage();
@@ -35,7 +35,6 @@ public class FileProcessor {
                 if (firstWorkerCountrySubDir.isDirectory()) {
                     File secondWorkerCountrySubDir = new File(secondWorkerPath + "\\" + firstWorkerCountrySubDir.getName());
                     File[] secondWorkerFilesListing = secondWorkerCountrySubDir.listFiles();
-
                     for (File firstWorkerExcelFile : firstWorkerCountrySubDir.listFiles()) {
                         File secondExcelFile = null;
                         for (File file : secondWorkerFilesListing) {
@@ -43,7 +42,7 @@ public class FileProcessor {
                                 secondExcelFile = file;
                             }
                         }
-                        new Thread(new ExcelProcessor(firstWorkerExcelFile, secondExcelFile, DS)).start();
+                        new Thread(new DataProcessor(firstWorkerExcelFile, secondExcelFile, DS)).start();
                     }
                 }
             }

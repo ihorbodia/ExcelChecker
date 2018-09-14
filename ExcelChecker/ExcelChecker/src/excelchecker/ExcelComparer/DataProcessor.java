@@ -26,7 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author ibodia
  */
-public class ExcelProcessor implements Runnable {
+class DataProcessor implements Runnable {
 
     String firstExcelFileName;
     String secondExcelFileName;
@@ -36,7 +36,7 @@ public class ExcelProcessor implements Runnable {
 
     final DiffsStorage DS;
 
-    public ExcelProcessor(File firstFile, File secondFile, DiffsStorage storage) throws FileNotFoundException, IOException {
+    DataProcessor(File firstFile, File secondFile, DiffsStorage storage) throws FileNotFoundException, IOException {
 
         if (firstFile != null) {
             firstExcelFileName = firstFile.getName();

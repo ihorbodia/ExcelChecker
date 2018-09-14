@@ -18,7 +18,7 @@ import org.apache.poi.ss.util.NumberToTextConverter;
  * @author Ihor
  */
 public final class ExcelHelper {
-    
+
     public static boolean isCellEmpty(final Cell cell) {
         if (cell == null || cell.getCellType() == BLANK) {
             return true;
@@ -27,14 +27,28 @@ public final class ExcelHelper {
     }
 
     public static String getCellData(final Cell cell) {
-        if (cell == null || cell.getCellType() == CellType.NUMERIC) {
-            return NumberToTextConverter.toText(cell.getNumericCellValue()).trim();
-        } else if (cell == null || cell.getCellType() == CellType.STRING) {
-            return cell.getStringCellValue().trim();
+        if (cell != null) {
+            if (cell.getCellType() == CellType.NUMERIC) {
+                return NumberToTextConverter.toText(cell.getNumericCellValue()).trim();
+            } else if (cell.getCellType() == CellType.STRING) {
+                return cell.getStringCellValue().trim();
+            }
         }
         return null;
     }
-    
+
+    public static double getNumericDataFromCell(final Cell cell) {
+        if (cell != null) {
+            if (cell.getCellType() == CellType.NUMERIC) {
+                return cell.getNumericCellValue();
+            }
+            if (cell.getCellType() == CellType.STRING) {
+                return Double.parseDouble(cell.getStringCellValue().trim());
+            }
+        }
+        return 0;
+    }
+
     public static Row findRow(Sheet sheet, String cellContent) {
         for (Row row : sheet) {
             if (getCellData(row.getCell(row.getFirstCellNum())).equals(cellContent)) {

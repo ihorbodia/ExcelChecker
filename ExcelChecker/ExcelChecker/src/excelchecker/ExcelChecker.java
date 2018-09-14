@@ -5,8 +5,8 @@
  */
 package excelchecker;
 
-import excelchecker.ExcelComparer.ExcelComparer;
-import excelchecker.ExcelRowsCleaner.RowsCleaner;
+import excelchecker.ExcelComparer.ExcelComparerGUI;
+import excelchecker.ExcelRowsCleaner.RowsCleanerGUI;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -32,8 +32,8 @@ public class ExcelChecker extends JFrame {
 
         JTabbedPane panes = new JTabbedPane();
 
-        panes.add("Excel comparer", new ExcelComparer().initTab());
-        panes.add("Excel rows cleaner", new RowsCleaner().initTab());
+        panes.add("Excel comparer", new ExcelComparerGUI().initTab());
+        panes.add("Excel rows cleaner", new RowsCleanerGUI().initTab());
 
         this.add(panes);
 

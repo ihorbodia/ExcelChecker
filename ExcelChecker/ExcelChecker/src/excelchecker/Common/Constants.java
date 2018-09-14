@@ -7,8 +7,9 @@ package excelchecker.Common;
 
 /**
  *
- * @author ibodia
+ * @author Ihor
  */
-public class StringConsts {
-    
+public class Constants {
+    public static final int buttonWidth = 100;
+    public static final int buttonHeight = 25;
 }

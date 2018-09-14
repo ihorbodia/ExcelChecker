@@ -3,17 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package excelchecker.ExcelRowsCleaner;
+package excelchecker.ExcelComparer;
 
-import excelchecker.Common.FilesHelper;
-import static excelchecker.Common.StringConsts.buttonHeight;
-import static excelchecker.Common.StringConsts.buttonWidth;
+import static excelchecker.Common.Constants.buttonHeight;
+import static excelchecker.Common.Constants.buttonWidth;
 import excelchecker.ExcelChecker;
-import excelchecker.ExcelComparer.FileProcessor;
+import excelchecker.Common.FilesHelper;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,37 +30,59 @@ import javax.swing.border.EmptyBorder;
 
 /**
  *
- * @author ibodia
+ * @author Ihor
  */
-public class RowsCleaner extends JFrame{
+public class ExcelComparerGUI extends JFrame {
     
-    File filesFolder;
-    
-    String chooseFolderPath;
-    Component parent;
-    
-    JLabel statusValueLabel = new JLabel("Choose folder");
+    FileDialog fc;
+    private static String firstWorkerPath = "";
+    private static String secondWorkerPath = "";
+
+    JLabel statusValueLabel = new JLabel("Choose folders");
     Thread workThread;
     
-    public RowsCleaner() {
+    Component parent;
+    
+    public ExcelComparerGUI(){
         
     }
     
     public JPanel initTab()
     {
-        JLabel choosenFolderPathLabel = new JLabel();
+        JTabbedPane comparerTab = new JTabbedPane();
+        
+        JLabel firstWorkerPathLabel = new JLabel();
+        JLabel secondWorkerPathLabel = new JLabel();
 
-        JLabel firstWorkerPathLabelTitle = new JLabel("Path to choosen folder:");
+        JLabel firstWorkerPathLabelTitle = new JLabel("First worker path:");
+        JLabel secondWorkerPathLabelTitle = new JLabel("Second worker path:");
         JLabel statusLabel = new JLabel("Status:");
 
-        Button chooseFolderPathButon = new Button("Worker 1 files..");
-        chooseFolderPathButon.addActionListener(new ActionListener() {
+        Button buttonChooseFirstWorkerFilesPath = new Button("Worker 1 files.."); // Create and add a Button
+        
+        buttonChooseFirstWorkerFilesPath.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
                     File f = FilesHelper.selectFolder(parent);
-                    chooseFolderPath = f.getAbsolutePath();
-                    choosenFolderPathLabel.setText(FilesHelper.getFileNameLabelPath(f));
-                    if (!chooseFolderPath.isEmpty()) {
+                    firstWorkerPath = f.getAbsolutePath();
+                    firstWorkerPathLabel.setText(FilesHelper.getFileNameLabelPath(f));
+                    if (!firstWorkerPath.isEmpty() && !secondWorkerPath.isEmpty()) {
+                        statusValueLabel.setText("You can start process files");
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        Button buttonChooseSecondWorkerFilesPath = new Button("Worker 2 files.."); // Create and add a Button
+        buttonChooseSecondWorkerFilesPath.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    File f = FilesHelper.selectFolder(parent);
+                    secondWorkerPath = f.getAbsolutePath();
+                    secondWorkerPathLabel.setText(FilesHelper.getFileNameLabelPath(f));
+                    if (!firstWorkerPath.isEmpty() && !secondWorkerPath.isEmpty()) {
                         statusValueLabel.setText("You can start process files");
                     }
                 } catch (IOException ex) {
@@ -79,7 +101,7 @@ public class RowsCleaner extends JFrame{
                     workThread = new Thread(new Runnable() {
                         public void run() {
                             try {
-                                //new FileProcessor(firstWorkerPath, secondWorkerPath);
+                                new FilesProcessor(firstWorkerPath, secondWorkerPath);
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -111,9 +133,9 @@ public class RowsCleaner extends JFrame{
         JPanel contentPanel = new JPanel(new GridLayout(10, 0, 5, 5));
 
         contentPanel.add(firstWorkerPathLabelTitle);
-        contentPanel.add(choosenFolderPathLabel);
-        contentPanel.add(new JPanel());
-        contentPanel.add(new JPanel());
+        contentPanel.add(firstWorkerPathLabel);
+        contentPanel.add(secondWorkerPathLabelTitle);
+        contentPanel.add(secondWorkerPathLabel);
         contentPanel.add(new JPanel());
         contentPanel.add(new JPanel());
         contentPanel.add(new JPanel());
@@ -122,10 +144,11 @@ public class RowsCleaner extends JFrame{
 
         JPanel controlsPanel = new JPanel(new GridLayout(0, 4, 5, 3));
         controlsPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        chooseFolderPathButon.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+        buttonChooseFirstWorkerFilesPath.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+        buttonChooseSecondWorkerFilesPath.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
         buttonProceedFiles.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
-        controlsPanel.add(chooseFolderPathButon);
-        controlsPanel.add(new JPanel());
+        controlsPanel.add(buttonChooseFirstWorkerFilesPath);
+        controlsPanel.add(buttonChooseSecondWorkerFilesPath);
         controlsPanel.add(new JPanel());
         controlsPanel.add(buttonProceedFiles);
         
