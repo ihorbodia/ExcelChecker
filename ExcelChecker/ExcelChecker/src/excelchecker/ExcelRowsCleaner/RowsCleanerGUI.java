@@ -100,13 +100,11 @@ public class RowsCleanerGUI extends JFrame {
                 } catch (Exception ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
             }
         });
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
         JPanel contentPanel = new JPanel(new GridLayout(10, 0, 5, 5));
 
         contentPanel.add(firstWorkerPathLabelTitle);

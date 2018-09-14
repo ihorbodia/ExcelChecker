@@ -5,21 +5,20 @@
  */
 package excelchecker.ExcelRowsCleaner;
 
-import static excelchecker.Common.ExcelHelper.findRow;
-import static excelchecker.Common.ExcelHelper.getCellData;
-import static excelchecker.Common.ExcelHelper.getNumericDataFromCell;
-import static excelchecker.Common.ExcelHelper.isCellEmpty;
 import excelchecker.ExcelChecker;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import static excelchecker.Common.ExcelHelper.getNumericDataFromCell;
+import static excelchecker.Common.ExcelHelper.isCellEmpty;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 /**
  *
@@ -30,37 +29,49 @@ class DataProcessor implements Runnable {
     Sheet excelDataSheet;
     String excelFileName;
     FileInputStream excelFileInStream;
+    XSSFWorkbook excelWorkBook;
+    File excelFile;
 
-    DataProcessor(File excelFile) throws FileNotFoundException, IOException {
-
+    DataProcessor(File excelFile) throws IOException {
         if (excelFile != null) {
             excelFileName = excelFile.getName();
+            this.excelFile = excelFile;
         } else {
-            System.out.printf("Something wrong in first method " + excelFile.getName());
+            System.out.print(excelFile.getName() + "Something wrong in first method ");
         }
 
         excelFileInStream = new FileInputStream(excelFile);
 
-        XSSFWorkbook excelWorkBook = new XSSFWorkbook(excelFileInStream);
+        excelWorkBook = new XSSFWorkbook(excelFileInStream);
         excelDataSheet = excelWorkBook.getSheetAt(0);
     }
 
     public void proceedFiles() throws IOException {
+        ArrayList<Row> rowsForDelete = new ArrayList<>();
         Iterator<Row> rowIterator = excelDataSheet.rowIterator();
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
             if (row != null && !isCellEmpty(row.getCell(1))) {
                 try {
-                    double cellData = getNumericDataFromCell(row.getCell(row.getFirstCellNum()));
-                    if (cellData == 0 ) {
-                        excelDataSheet.removeRow(row);
+                    double cellData = getNumericDataFromCell(row.getCell(1));
+                    if (cellData == 0.0) {
+                        rowsForDelete.add(row);
                     }
                 } catch (IllegalStateException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in compareFiles method.", ex);
                 }
             }
         }
+        
+        for (Row rowToDelete : rowsForDelete) {
+            excelDataSheet.removeRow(rowToDelete);
+        }
         excelFileInStream.close();
+        FileOutputStream fileOut = new FileOutputStream(excelFile.getAbsolutePath());
+        excelWorkBook.write(fileOut);
+        excelWorkBook.close();
+        fileOut.close();
+        
     }
 
     @Override
@@ -71,5 +82,4 @@ class DataProcessor implements Runnable {
             Logger.getLogger(DataProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 }

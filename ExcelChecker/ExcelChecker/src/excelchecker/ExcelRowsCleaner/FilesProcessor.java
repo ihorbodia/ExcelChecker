@@ -5,7 +5,6 @@
  */
 package excelchecker.ExcelRowsCleaner;
 
-import static excelchecker.Common.FilesHelper.storeOutputFile;
 import java.io.File;
 import java.io.IOException;
 
@@ -14,15 +13,14 @@ import java.io.IOException;
  * @author ibodia
  */
 public class FilesProcessor {
-    
-    String choosenFolderPath;
-    public FilesProcessor(String choosenFolderPath) throws IOException {
-        this.choosenFolderPath = choosenFolderPath;
+    String chosenFolderPath;
+    public FilesProcessor(String chosenFolderPath) throws IOException {
+        this.chosenFolderPath = chosenFolderPath;
         proceedFiles();
     }
 
     private void proceedFiles() throws IOException {
-        File dir = new File(choosenFolderPath);
+        File dir = new File(chosenFolderPath);
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             for (File countrySubdir : directoryListing) {
