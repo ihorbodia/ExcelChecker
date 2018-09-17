@@ -9,6 +9,8 @@ package excelchecker.Common;
  *
  * @author ibodia
  */
-public class StringConsts {
-    
+public final class StringConsts {
+    public static String ToBeCheckedFilesFolderPath;
+    public static String ToBeDividedFolderPath;
+    public static String PerfectFolderPath;
 }

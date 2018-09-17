@@ -76,7 +76,7 @@ public class ExcelSeparatorGUI {
                     workThread = new Thread(new Runnable() {
                         public void run() {
                             try {
-                                new excelchecker.ExcelRowsCleaner.FilesProcessor(chooseFolderPath);
+                                new excelchecker.ExcelSeparator.FilesProcessor(chooseFolderPath);
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {

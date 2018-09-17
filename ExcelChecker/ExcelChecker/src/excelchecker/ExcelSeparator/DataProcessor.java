@@ -7,12 +7,13 @@ package excelchecker.ExcelSeparator;
 
 import static excelchecker.Common.ExcelHelper.getNumericDataFromCell;
 import static excelchecker.Common.ExcelHelper.isCellEmpty;
+import excelchecker.Common.StringConsts;
 import excelchecker.ExcelChecker;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,34 +46,51 @@ class DataProcessor implements Runnable {
         excelDataSheet = excelWorkBook.getSheetAt(0);
     }
 
-    void proceedFiles() throws IOException {
-        //ArrayList<Row> rowsForSum = new ArrayList<>();
+    void proceedFile() throws IOException {
         double sum = 0.0;
         Iterator<Row> rowIterator = excelDataSheet.rowIterator();
+        if (!rowIterator.hasNext()) {
+            sum = -1;
+        }
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            if (row != null && !isCellEmpty(row.getCell(2))) {
+            if (row == null || isCellEmpty(row.getCell(2))) {
+                break;
+            }
+            else {
                 try {
                     double cellData = getNumericDataFromCell(row.getCell(2));
                     sum += cellData;
                 } catch (IllegalStateException ex) {
-                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in compareFiles method.", ex);
+                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in proceedFile method.", ex);
                 }
             }
         }
         
+        if (sum > 1.0) {
+            storeFile(StringConsts.ToBeDividedFolderPath);
+        }
+        else if (sum <= 1.0 && sum >= 0.0) {
+            storeFile(StringConsts.PerfectFolderPath);
+        }
+        else if (sum < 0.0){
+            storeFile(StringConsts.ToBeCheckedFilesFolderPath);
+        }
         excelFileInStream.close();
-        FileOutputStream fileOut = new FileOutputStream(excelFile.getAbsolutePath());
+    }
+    
+    private void storeFile(String path) throws IOException {
+        String resPath = path +"\\"+ excelFile.getName();
+        FileOutputStream fileOut = new FileOutputStream(resPath);
         excelWorkBook.write(fileOut);
         excelWorkBook.close();
         fileOut.close();
-        
     }
 
     @Override
     public void run() {
         try {
-            proceedFiles();
+            proceedFile();
         } catch (IOException ex) {
             Logger.getLogger(excelchecker.ExcelSeparator.DataProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
