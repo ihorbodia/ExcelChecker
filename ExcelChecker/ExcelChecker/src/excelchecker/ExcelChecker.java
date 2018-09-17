@@ -7,6 +7,7 @@ package excelchecker;
 
 import excelchecker.ExcelComparer.ExcelComparerGUI;
 import excelchecker.ExcelRowsCleaner.RowsCleanerGUI;
+import excelchecker.ExcelSeparator.ExcelSeparatorGUI;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -34,6 +35,7 @@ public class ExcelChecker extends JFrame {
 
         panes.add("Excel comparer", new ExcelComparerGUI().initTab());
         panes.add("Excel rows cleaner", new RowsCleanerGUI().initTab());
+        panes.add("Excel separator", new ExcelSeparatorGUI().initTab());
 
         this.add(panes);
 
