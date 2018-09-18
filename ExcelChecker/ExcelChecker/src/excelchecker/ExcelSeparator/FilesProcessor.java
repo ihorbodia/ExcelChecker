@@ -5,11 +5,9 @@
  */
 package excelchecker.ExcelSeparator;
 
-import excelchecker.Common.FilesHelper;
 import excelchecker.Common.StringConsts;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -50,19 +48,19 @@ public class FilesProcessor {
         PerfectFolderPath = choosenFolderParenPath + "\\" + "Perfect";
         
         File toBeDividedFolder = new File(ToBeDividedFolderPath);
-        if (!toBeDividedFolder.mkdir()) {
+        if (toBeDividedFolder.mkdir()) {
             toBeDividedFolder.setWritable(true);
             StringConsts.ToBeDividedFolderPath = ToBeDividedFolderPath;
         }
         
         File perfectFilesFolder = new File(PerfectFolderPath);
-        if (!perfectFilesFolder.mkdir()) {
+        if (perfectFilesFolder.mkdir()) {
             perfectFilesFolder.setWritable(true);
             StringConsts.PerfectFolderPath = PerfectFolderPath;
         }
         
         File toBeCheckedFolder = new File(ToBeCheckedFilesFolderPath);
-        if (!toBeCheckedFolder.mkdir()) {
+        if (toBeCheckedFolder.mkdir()) {
             toBeCheckedFolder.setWritable(true);
             StringConsts.ToBeCheckedFilesFolderPath = ToBeCheckedFilesFolderPath;
         }

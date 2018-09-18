@@ -5,6 +5,9 @@
  */
 package excelchecker.Common;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
@@ -37,13 +40,25 @@ public final class ExcelHelper {
         return null;
     }
 
-    public static double getNumericDataFromCell(final Cell cell) {
+    public static double getNumericDataFromCell(final Cell cell) throws ParseException {
+        DecimalFormat df = new DecimalFormat();
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator(',');
+        symbols.setGroupingSeparator(' ');
+        df.setDecimalFormatSymbols(symbols);
         if (cell != null) {
             if (cell.getCellType() == CellType.NUMERIC) {
                 return cell.getNumericCellValue();
             }
             if (cell.getCellType() == CellType.STRING) {
-                return Double.parseDouble(cell.getStringCellValue().trim());
+                double result = 0.0;
+                try {
+                    result = Double.parseDouble(cell.getStringCellValue().trim());
+                } catch (NumberFormatException e) {
+                    String data = cell.getStringCellValue().trim();
+                    result = df.parse(data).doubleValue();
+                }
+                return result;
             }
         }
         return 0;
