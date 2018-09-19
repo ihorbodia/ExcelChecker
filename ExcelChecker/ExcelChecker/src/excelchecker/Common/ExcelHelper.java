@@ -5,6 +5,8 @@
  */
 package excelchecker.Common;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -41,6 +43,16 @@ public final class ExcelHelper {
         return null;
     }
 
+    public static double round(double value, int places) {
+        if (places < 0) {
+            throw new IllegalArgumentException();
+        }
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
     public static double getNumericDataFromCell(final Cell cell) throws ParseException {
         DecimalFormat df = new DecimalFormat();
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
@@ -56,7 +68,7 @@ public final class ExcelHelper {
                 try {
                     result = Double.parseDouble(cell.getStringCellValue().trim());
                 } catch (NumberFormatException e) {
-                    String data = cell.getStringCellValue().trim().replaceAll("\t", "").replaceAll("\\s+","").replaceAll("(^\\h*)|(\\h*$)","");
+                    String data = cell.getStringCellValue().trim().replaceAll("\t", "").replaceAll("\\s+", "").replaceAll("(^\\h*)|(\\h*$)", "");
                     result = df.parse(StringUtils.strip(data)).doubleValue();
                 }
                 return result;

@@ -7,8 +7,8 @@ package excelchecker.ExcelSeparator;
 
 import static excelchecker.Common.ExcelHelper.getNumericDataFromCell;
 import static excelchecker.Common.ExcelHelper.isCellEmpty;
+import static excelchecker.Common.ExcelHelper.round;
 import excelchecker.Common.StringConsts;
-import excelchecker.ExcelChecker;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -56,6 +56,7 @@ class DataProcessor implements Runnable {
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
             if (row == null || isCellEmpty(row.getCell(2))) {
+                sum = -1;
                 break;
             } else {
                 try {
@@ -66,6 +67,7 @@ class DataProcessor implements Runnable {
                 }
             }
         }
+        sum = round(sum, 2);
 
         if (sum > 1.0) {
             storeFile(StringConsts.ToBeDividedFolderPath);
