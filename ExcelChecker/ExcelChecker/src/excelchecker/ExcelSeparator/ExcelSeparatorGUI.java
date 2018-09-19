@@ -10,21 +10,15 @@ import excelchecker.ExcelChecker;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JLabel;
 
 /**
  *
  * @author ibodia
  */
 public class ExcelSeparatorGUI extends TabObject {
-    File filesFolder;
-
     Component parent;
-
-    JLabel statusValueLabel = new JLabel("Choose folder");
     Thread workThread;
 
     public ExcelSeparatorGUI() {

@@ -56,7 +56,9 @@ class DataProcessor implements Runnable {
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
             if (row == null || isCellEmpty(row.getCell(2))) {
-                sum = -1;
+                if (sum == 0.0) {
+                    sum = -1;
+                }
                 break;
             } else {
                 try {
