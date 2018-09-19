@@ -32,9 +32,9 @@ public class RowsCleanerGUI extends TabObject {
     public RowsCleanerGUI() {
         firstLabelInfoPath = "Path to choosen folder:";
         firstButtonInfoText = "Choose folder";
-        
+
         toolTipStartText = "Choose folder";
-        
+
         firstLabelInfoVisible = true;
         secondLabelInfoVisible = false;
     }
@@ -44,8 +44,8 @@ public class RowsCleanerGUI extends TabObject {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                buttonProceedFiles.setEnabled(false);
-                statusValueLabel.setText("Processing...");
+                isProceedButtonEnabled(false);
+                updateToolTip("Processing...");
                 try {
                     workThread = new Thread(new Runnable() {
                         public void run() {
@@ -55,16 +55,16 @@ public class RowsCleanerGUI extends TabObject {
                                     @Override
                                     public void run() {
                                         while (!workThread.isAlive()) {
-                                            statusValueLabel.setText("Finished");
-                                            buttonProceedFiles.setEnabled(true);
+                                            updateToolTip("Finished");
+                                            isProceedButtonEnabled(true);
                                             break;
                                         }
                                     }
                                 }).start();
                             } catch (Exception ex) {
                                 Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
-                                statusValueLabel.setText("Something wrong...");
-                                buttonProceedFiles.setEnabled(true);
+                                updateToolTip("Something wrong...");
+                                isProceedButtonEnabled(true);
                             }
                         }
                     });

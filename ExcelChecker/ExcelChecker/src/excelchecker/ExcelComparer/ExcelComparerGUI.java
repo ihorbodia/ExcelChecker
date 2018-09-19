@@ -19,21 +19,21 @@ import javax.swing.JLabel;
  * @author Ihor
  */
 public class ExcelComparerGUI extends TabObject {
-    
+
     JLabel statusValueLabel = new JLabel("Choose folders");
     Thread workThread;
-    
+
     Component parent;
-    
-    public ExcelComparerGUI(){
+
+    public ExcelComparerGUI() {
         firstLabelInfoPath = "First worker path:";
         secondLabelInfoPath = "Second worker path:";
-        
+
         firstButtonInfoText = "Worker 1 files..";
         secondButtonInfoText = "Worker 2 files..";
-        
+
         toolTipStartText = "Choose folders";
-        
+
         firstLabelInfoVisible = true;
         secondLabelInfoVisible = true;
     }
@@ -43,8 +43,8 @@ public class ExcelComparerGUI extends TabObject {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                buttonProceedFiles.setEnabled(false);
-                statusValueLabel.setText("Processing...");
+                isProceedButtonEnabled(false);
+                updateToolTip("Processing...");
                 try {
                     workThread = new Thread(new Runnable() {
                         public void run() {
@@ -54,16 +54,16 @@ public class ExcelComparerGUI extends TabObject {
                                     @Override
                                     public void run() {
                                         while (!workThread.isAlive()) {
-                                            statusValueLabel.setText("Finished");
-                                            buttonProceedFiles.setEnabled(true);
+                                            updateToolTip("Finished");
+                                            isProceedButtonEnabled(true);
                                             break;
                                         }
                                     }
                                 }).start();
                             } catch (Exception ex) {
                                 Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
-                                statusValueLabel.setText("Something wrong...");
-                                buttonProceedFiles.setEnabled(true);
+                                isProceedButtonEnabled(true);
+                                updateToolTip("Something wrong...");
                             }
                         }
                     });
@@ -73,5 +73,5 @@ public class ExcelComparerGUI extends TabObject {
                 }
             }
         };
-    }    
+    }
 }

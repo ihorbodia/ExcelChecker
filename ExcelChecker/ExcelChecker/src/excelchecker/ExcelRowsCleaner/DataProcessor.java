@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import static excelchecker.Common.ExcelHelper.getNumericDataFromCell;
 import static excelchecker.Common.ExcelHelper.isCellEmpty;
 import java.io.FileOutputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 /**
@@ -46,7 +47,7 @@ class DataProcessor implements Runnable {
         excelDataSheet = excelWorkBook.getSheetAt(0);
     }
 
-    public void proceedFiles() throws IOException {
+    public void proceedFiles() throws IOException, ParseException {
         ArrayList<Row> rowsForDelete = new ArrayList<>();
         Iterator<Row> rowIterator = excelDataSheet.rowIterator();
         while (rowIterator.hasNext()) {
@@ -79,6 +80,8 @@ class DataProcessor implements Runnable {
         try {
             proceedFiles();
         } catch (IOException ex) {
+            Logger.getLogger(DataProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
             Logger.getLogger(DataProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -52,9 +52,7 @@ public abstract class TabObject extends JTabbedPane {
     protected boolean firstLabelInfoVisible;
     protected boolean secondLabelInfoVisible;
 
-    JLabel statusToolTipLabel = new JLabel();
-    Thread workThread;
-    
+    private JLabel statusToolTipLabel = new JLabel();
     JPanel controlsPanel;
     Component parent;
 
@@ -62,10 +60,14 @@ public abstract class TabObject extends JTabbedPane {
         controlsPanel = new JPanel(new GridLayout(0, 4, 5, 3));
     }
 
-    private void updateToolTip(String text) {
+    protected void updateToolTip(String text) {
         if ((!firstWorkerPath.isEmpty() && firstLabelInfoVisible) || (!secondWorkerPath.isEmpty() && secondLabelInfoVisible)) {
-            statusToolTipLabel.setText(text);
+            this.statusToolTipLabel.setText(text);
         }
+    }
+    
+    protected void isProceedButtonEnabled(boolean value){
+        this.buttonProceedFiles.setEnabled(value);
     }
 
     public JPanel initTab() {

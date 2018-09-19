@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author ibodia
  */
 class DataProcessor implements Runnable {
+
     Sheet excelDataSheet;
     String excelFileName;
     FileInputStream excelFileInStream;
@@ -45,7 +47,7 @@ class DataProcessor implements Runnable {
         excelDataSheet = excelWorkBook.getSheetAt(0);
     }
 
-    void proceedFile() throws IOException {
+    void proceedFile() throws IOException, ParseException {
         double sum = 0.0;
         Iterator<Row> rowIterator = excelDataSheet.rowIterator();
         if (!rowIterator.hasNext()) {
@@ -55,31 +57,28 @@ class DataProcessor implements Runnable {
             Row row = rowIterator.next();
             if (row == null || isCellEmpty(row.getCell(2))) {
                 break;
-            }
-            else {
+            } else {
                 try {
                     double cellData = getNumericDataFromCell(row.getCell(2));
                     sum += cellData;
                 } catch (IllegalStateException ex) {
-                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in proceedFile method.", ex);
+                    Logger.getLogger(DataProcessor.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
-        
+
         if (sum > 1.0) {
             storeFile(StringConsts.ToBeDividedFolderPath);
-        }
-        else if (sum <= 1.0 && sum >= 0.0) {
+        } else if (sum <= 1.0 && sum >= 0.0) {
             storeFile(StringConsts.PerfectFolderPath);
-        }
-        else if (sum < 0.0){
+        } else if (sum < 0.0) {
             storeFile(StringConsts.ToBeCheckedFilesFolderPath);
         }
         excelFileInStream.close();
     }
-    
+
     private void storeFile(String path) throws IOException {
-        String resPath = path +"\\"+ excelFile.getName();
+        String resPath = path + "\\" + excelFile.getName();
         FileOutputStream fileOut = new FileOutputStream(resPath);
         excelWorkBook.write(fileOut);
         excelWorkBook.close();
@@ -92,6 +91,8 @@ class DataProcessor implements Runnable {
             proceedFile();
         } catch (IOException ex) {
             Logger.getLogger(excelchecker.ExcelSeparator.DataProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(DataProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

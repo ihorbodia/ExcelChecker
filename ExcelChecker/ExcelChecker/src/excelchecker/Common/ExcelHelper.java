@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
 import static org.apache.poi.ss.usermodel.CellType.STRING;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.NumberToTextConverter;
 
@@ -55,8 +56,8 @@ public final class ExcelHelper {
                 try {
                     result = Double.parseDouble(cell.getStringCellValue().trim());
                 } catch (NumberFormatException e) {
-                    String data = cell.getStringCellValue().trim();
-                    result = df.parse(data).doubleValue();
+                    String data = cell.getStringCellValue().trim().replaceAll("\t", "").replaceAll("\\s+","").replaceAll("(^\\h*)|(\\h*$)","");
+                    result = df.parse(StringUtils.strip(data)).doubleValue();
                 }
                 return result;
             }

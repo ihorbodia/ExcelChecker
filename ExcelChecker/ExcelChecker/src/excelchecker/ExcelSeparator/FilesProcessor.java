@@ -50,19 +50,19 @@ public class FilesProcessor {
         File toBeDividedFolder = new File(ToBeDividedFolderPath);
         if (toBeDividedFolder.mkdir()) {
             toBeDividedFolder.setWritable(true);
-            StringConsts.ToBeDividedFolderPath = ToBeDividedFolderPath;
         }
+        StringConsts.ToBeDividedFolderPath = ToBeDividedFolderPath;
         
         File perfectFilesFolder = new File(PerfectFolderPath);
         if (perfectFilesFolder.mkdir()) {
             perfectFilesFolder.setWritable(true);
-            StringConsts.PerfectFolderPath = PerfectFolderPath;
         }
+        StringConsts.PerfectFolderPath = PerfectFolderPath;
         
         File toBeCheckedFolder = new File(ToBeCheckedFilesFolderPath);
         if (toBeCheckedFolder.mkdir()) {
             toBeCheckedFolder.setWritable(true);
-            StringConsts.ToBeCheckedFilesFolderPath = ToBeCheckedFilesFolderPath;
         }
+        StringConsts.ToBeCheckedFilesFolderPath = ToBeCheckedFilesFolderPath;
     }
 }
