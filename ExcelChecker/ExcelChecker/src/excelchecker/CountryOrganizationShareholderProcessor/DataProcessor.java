@@ -9,6 +9,7 @@ import excelchecker.Abstract.DataProcessorAbstract;
 import static excelchecker.Common.ExcelHelper.getCellData;
 import static excelchecker.Common.ExcelHelper.getNumericDataFromCell;
 import static excelchecker.Common.ExcelHelper.isCellEmpty;
+import excelchecker.Common.WorkbookModel;
 import excelchecker.ExcelChecker;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,16 +30,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author Ihor
  */
 class DataProcessor extends DataProcessorAbstract {
-    
+
     Sheet organisationFileDataSheet;
     String excelFileName;
     FileInputStream excelFileInStream;
     XSSFWorkbook excelWorkBook;
     File excelFile;
-    
-    DataProcessor(File orgExcelFile) throws IOException
-    {
-         if (orgExcelFile != null) {
+
+    DataProcessor(File orgExcelFile) throws IOException {
+        if (orgExcelFile != null) {
             excelFileName = excelFile.getName();
             this.excelFile = orgExcelFile;
         } else {
@@ -48,7 +48,7 @@ class DataProcessor extends DataProcessorAbstract {
         excelWorkBook = new XSSFWorkbook(excelFileInStream);
         organisationFileDataSheet = excelWorkBook.getSheetAt(0);
     }
-    
+
     @Override
     protected void proceedFiles() throws IOException, ParseException {
         String dataFromBColumn;
@@ -58,10 +58,10 @@ class DataProcessor extends DataProcessorAbstract {
             if (orgRow != null && !isCellEmpty(orgRow.getCell(2))) {
                 try {
                     String orgCellData = getCellData(orgRow.getCell(2));
-                    for (XSSFWorkbook workBook : FilesProcessor.countryDocFiles) {
-                        Sheet countryFileDataSheet = workBook.getSheetAt(2);
+                    for (WorkbookModel workBookModel : FilesProcessor.countryDocFiles) {
+                        Sheet countryFileDataSheet = workBookModel.workBook.getSheetAt(2);
                         for (Row countryRow : countryFileDataSheet) {
-                            if (getCellData(countryRow.getCell(2)).contains(orgCellData)) {
+                            if (getCellData(countryRow.getCell(0)).contains(orgCellData)) {
                                 dataFromBColumn = getCellData(countryRow.getCell(1));
                             }
                         }
@@ -71,14 +71,13 @@ class DataProcessor extends DataProcessorAbstract {
                 }
             }
         }
-        
-        for (XSSFWorkbook countryWorkBook : FilesProcessor.countryDocFiles) {
-            if (excelFileName.split(" ")[0] == countryWorkBook.get) {
-                
+
+        for (WorkbookModel workBookModel : FilesProcessor.countryDocFiles) {
+            if (excelFileName.split(" ")[0].contains(workBookModel.name)) {
+                Sheet excelSheetToStore = countryWorkBook.getSheetAt(1);
             }
-            Sheet excelSheetToStore = countryWorkBook.getSheetAt(1);
         }
-        
+
         excelFileInStream.close();
         FileOutputStream fileOut = new FileOutputStream(excelFile.getAbsolutePath());
         excelWorkBook.write(fileOut);

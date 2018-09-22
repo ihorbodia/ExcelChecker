@@ -5,13 +5,12 @@
  */
 package excelchecker.CountryOrganizationShareholderProcessor;
 
+import excelchecker.Common.WorkbookModel;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
@@ -21,24 +20,24 @@ class FilesProcessor {
 
     String chosenFolderPath;
     String organizationFile;
-    static ArrayList<XSSFWorkbook> countryDocFiles;
+    static ArrayList<WorkbookModel> countryDocFiles;
 
     public FilesProcessor(String chosenFolderPath) throws IOException {
         this.chosenFolderPath = chosenFolderPath;
-        countryDocFiles = new ArrayList<XSSFWorkbook>();
+        countryDocFiles = new ArrayList<WorkbookModel>();
         initCountryDocFiles();
         proceedFiles();
     }
 
     private void proceedFiles() throws IOException {
-        File dir = new File(chosenFolderPath+"\\result");
+        File dir = new File(chosenFolderPath + "\\result");
         File[] orgFiles = dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.contains("organisation shareholder analysis to do");
             }
         });
-        
+
         for (File orgFile : orgFiles) {
             new Thread(new excelchecker.CountryOrganizationShareholderProcessor.DataProcessor(orgFile)).start();
         }
@@ -59,8 +58,7 @@ class FilesProcessor {
                     if (docFiles.length > 1) {
                         return;
                     }
-                    XSSFWorkbook excelWorkBook = new XSSFWorkbook(new FileInputStream(docFiles[0]));
-                    countryDocFiles.add(excelWorkBook);
+                    countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
                     System.out.println(docFiles[0].getAbsolutePath());
                 }
             }
