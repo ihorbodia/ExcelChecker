@@ -37,7 +37,6 @@ public class FilesProcessor {
                      new Thread(new excelchecker.ExcelSeparator.DataProcessor(excelFile)).start();
                 }
             }
-
         }
     }
 

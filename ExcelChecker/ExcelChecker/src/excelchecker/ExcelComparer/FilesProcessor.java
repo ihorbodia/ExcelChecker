@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @author ibodia
  */
-public class FilesProcessor {
+class FilesProcessor {
 
     String firstWorkerPath;
     String secondWorkerPath;

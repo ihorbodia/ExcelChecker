@@ -5,6 +5,7 @@
  */
 package excelchecker;
 
+import excelchecker.CountryOrganizationShareholderProcessor.CountryOrganizationShareholderProcessorGUI;
 import excelchecker.ExcelComparer.ExcelComparerGUI;
 import excelchecker.ExcelRowsCleaner.RowsCleanerGUI;
 import excelchecker.ExcelSeparator.ExcelSeparatorGUI;
@@ -25,7 +26,7 @@ public class ExcelChecker extends JFrame {
 
     ExcelChecker() {
         super("ExcelChecker");
-        setSize(400, 300);
+        setSize(600, 300);
         setTitle("Excel checker v5.1");
         setLocationRelativeTo(null);
         setResizable(false);
@@ -36,6 +37,7 @@ public class ExcelChecker extends JFrame {
         panes.add("Excel comparer", new ExcelComparerGUI().initTab());
         panes.add("Excel rows cleaner", new RowsCleanerGUI().initTab());
         panes.add("Excel separator", new ExcelSeparatorGUI().initTab());
+        panes.add("Org. shareholder processor", new CountryOrganizationShareholderProcessorGUI().initTab());
 
         this.add(panes);
 

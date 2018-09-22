@@ -12,7 +12,7 @@ import java.io.IOException;
  *
  * @author ibodia
  */
-public class FilesProcessor {
+class FilesProcessor {
     String chosenFolderPath;
     public FilesProcessor(String chosenFolderPath) throws IOException {
         this.chosenFolderPath = chosenFolderPath;
