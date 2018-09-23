@@ -7,16 +7,13 @@ package excelchecker.CountryOrganizationShareholderProcessor;
 
 import excelchecker.Abstract.DataProcessorAbstract;
 import static excelchecker.Common.ExcelHelper.getCellData;
-import static excelchecker.Common.ExcelHelper.getNumericDataFromCell;
 import static excelchecker.Common.ExcelHelper.isCellEmpty;
 import excelchecker.Common.WorkbookModel;
 import excelchecker.ExcelChecker;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,51 +35,62 @@ class DataProcessor extends DataProcessorAbstract {
     File excelFile;
 
     DataProcessor(File orgExcelFile) throws IOException {
-        if (orgExcelFile != null) {
-            excelFileName = excelFile.getName();
-            this.excelFile = orgExcelFile;
+        if (orgExcelFile.getName().contains("xlsx#")) {
+            System.out.println("File error");
         } else {
-            System.out.print(excelFile.getName() + "Something wrong in first method ");
+            excelFileName = orgExcelFile.getName();
+            this.excelFile = orgExcelFile;
+            excelFileInStream = new FileInputStream(this.excelFile);
+            excelWorkBook = new XSSFWorkbook(excelFileInStream);
+            organisationFileDataSheet = excelWorkBook.getSheetAt(0);
+            if (organisationFileDataSheet == null) {
+                String test = "";
+            }
         }
-        excelFileInStream = new FileInputStream(excelFile);
-        excelWorkBook = new XSSFWorkbook(excelFileInStream);
-        organisationFileDataSheet = excelWorkBook.getSheetAt(0);
     }
 
     @Override
     protected void proceedFiles() throws IOException, ParseException {
-        String dataFromBColumn;
+        String dataFromBColumn = "";
+        String nameOfOrganisation = "";
         Iterator<Row> rowIterator = organisationFileDataSheet.rowIterator();
         while (rowIterator.hasNext()) {
             Row orgRow = rowIterator.next();
-            if (orgRow != null && !isCellEmpty(orgRow.getCell(2))) {
+            if (orgRow != null && !isCellEmpty(orgRow.getCell(2)) && orgRow.getRowNum() != 0) {
                 try {
                     String orgCellData = getCellData(orgRow.getCell(2));
                     for (WorkbookModel workBookModel : FilesProcessor.countryDocFiles) {
-                        Sheet countryFileDataSheet = workBookModel.workBook.getSheetAt(2);
+                        Sheet countryFileDataSheet = workBookModel.workBookFile.getSheetAt(2);
                         for (Row countryRow : countryFileDataSheet) {
-                            if (getCellData(countryRow.getCell(0)).contains(orgCellData)) {
+                            if (getCellData(countryRow.getCell(0)).contains(orgCellData) && countryRow.getRowNum() != 0) {
                                 dataFromBColumn = getCellData(countryRow.getCell(1));
+                                nameOfOrganisation = getCellData(countryRow.getCell(0));
+                                break;
                             }
                         }
                     }
                 } catch (IllegalStateException ex) {
-                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in compareFiles method.", ex);
+                    Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in proceedFiles method.", ex);
                 }
             }
         }
 
         for (WorkbookModel workBookModel : FilesProcessor.countryDocFiles) {
-            if (excelFileName.split(" ")[0].contains(workBookModel.name)) {
-                Sheet excelSheetToStore = countryWorkBook.getSheetAt(1);
+            String countryName = excelFileName.split(" ")[0];
+            if (workBookModel.name.contains(countryName)) {
+                Sheet countryDocSheet = workBookModel.workBookFile.getSheetAt(1);
+                for (Row row : countryDocSheet) {
+                    if (getCellData(row.getCell(0)).contains(nameOfOrganisation) && row.getRowNum() != 0) {
+                        Cell cell = row.getCell(1);
+                        int test = 0;
+                        if (cell == null) {
+                            test = row.getRowNum();
+                        }
+                        cell.setCellValue(dataFromBColumn);
+                    }
+                }
             }
         }
-
-        excelFileInStream.close();
-        FileOutputStream fileOut = new FileOutputStream(excelFile.getAbsolutePath());
-        excelWorkBook.write(fileOut);
-        excelWorkBook.close();
-        fileOut.close();
     }
 
     @Override

@@ -16,11 +16,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author Ihor
  */
 public class WorkbookModel {
-    public XSSFWorkbook workBook;
+    public XSSFWorkbook workBookFile;
     public String name;
+    public File file;
     
-    public WorkbookModel(File workBook, String name) throws FileNotFoundException, IOException{
-        this.workBook = new XSSFWorkbook(new FileInputStream(workBook));
+    public WorkbookModel(File workBookFile, String name) throws FileNotFoundException, IOException{
+        this.workBookFile = new XSSFWorkbook(new FileInputStream(workBookFile));
         this.name = name;
+        this.file = workBookFile;
     }
 }

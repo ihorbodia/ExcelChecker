@@ -8,6 +8,7 @@ package excelchecker.CountryOrganizationShareholderProcessor;
 import excelchecker.Common.WorkbookModel;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ class FilesProcessor {
         countryDocFiles = new ArrayList<WorkbookModel>();
         initCountryDocFiles();
         proceedFiles();
+        saveCountryFiles();
     }
 
     private void proceedFiles() throws IOException {
@@ -40,6 +42,15 @@ class FilesProcessor {
 
         for (File orgFile : orgFiles) {
             new Thread(new excelchecker.CountryOrganizationShareholderProcessor.DataProcessor(orgFile)).start();
+        }
+    }
+
+    private void saveCountryFiles() throws FileNotFoundException, IOException {
+        for (WorkbookModel countryDocFile : countryDocFiles) {
+            FileOutputStream fileOut = new FileOutputStream(countryDocFile.file.getAbsolutePath());
+            countryDocFile.workBookFile.write(fileOut);
+            countryDocFile.workBookFile.close();
+            fileOut.close();
         }
     }
 
@@ -59,11 +70,8 @@ class FilesProcessor {
                         return;
                     }
                     countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
-                    System.out.println(docFiles[0].getAbsolutePath());
                 }
             }
         }
-        System.out.println("test");
-
     }
 }

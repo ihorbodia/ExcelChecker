@@ -42,7 +42,6 @@ class DataProcessor implements Runnable {
         }
 
         excelFileInStream = new FileInputStream(excelFile);
-
         excelWorkBook = new XSSFWorkbook(excelFileInStream);
         excelDataSheet = excelWorkBook.getSheetAt(0);
     }

@@ -40,7 +40,7 @@ public final class ExcelHelper {
                 return cell.getStringCellValue().trim();
             }
         }
-        return null;
+        return "";
     }
 
     public static double round(double value, int places) {
