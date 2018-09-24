@@ -8,19 +8,22 @@ package excelchecker.CountryOrganizationShareholderProcessor;
 import excelchecker.Common.WorkbookModel;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Ihor
  */
-class FilesProcessor {
+class FilesProcessor implements Runnable {
 
     String chosenFolderPath;
     String organizationFile;
-    
 
     public FilesProcessor(String chosenFolderPath) throws IOException {
         this.chosenFolderPath = chosenFolderPath;
@@ -29,20 +32,8 @@ class FilesProcessor {
     }
 
     private void proceedFiles() throws IOException {
-        File dir = new File(chosenFolderPath + "\\result");
-        File[] orgFiles = dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.contains("organisation shareholder analysis to do");
-            }
-        });
 
-        for (File orgFile : orgFiles) {
-            new Thread(new excelchecker.CountryOrganizationShareholderProcessor.DataProcessor(orgFile)).start();
-        }
     }
-
-    
 
     private void initCountryDocFiles() throws FileNotFoundException, IOException {
         File dir = new File(chosenFolderPath);
@@ -61,6 +52,35 @@ class FilesProcessor {
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void run() {
+        File dir = new File(chosenFolderPath + "\\result");
+        File[] orgFiles = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.contains("organisation shareholder analysis to do");
+            }
+        });
+
+        ExecutorService executor = Executors.newCachedThreadPool();//creating a pool of 5 threads  
+        for (File orgFile : orgFiles) {
+            Runnable worker = null;
+            try {
+                worker = new Thread(new excelchecker.CountryOrganizationShareholderProcessor.DataProcessor(orgFile));
+            } catch (IOException ex) {
+                Logger.getLogger(FilesProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            executor.execute(worker);//calling execute method of ExecutorService 
+        }
+        executor.shutdown();
+
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            
         }
     }
 }

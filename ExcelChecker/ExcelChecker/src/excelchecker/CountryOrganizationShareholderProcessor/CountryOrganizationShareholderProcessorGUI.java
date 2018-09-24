@@ -13,6 +13,9 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,37 +53,30 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
             public void actionPerformed(ActionEvent e) {
                 isProceedButtonEnabled(false);
                 updateToolTip("Processing...");
-                try {
-                    workThread = new Thread(new Runnable() {
-                        public void run() {
-                            try {
-                                new excelchecker.CountryOrganizationShareholderProcessor.FilesProcessor(firstWorkerPath);
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        while (!workThread.isAlive()) {
-                                            try {
-                                                saveCountryFiles();
-                                            } catch (IOException ex) {
-                                                Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                            updateToolTip("Finished");
-                                            isProceedButtonEnabled(true);
-                                            break;
-                                        }
-                                    }
-                                }).start();
-                            } catch (Exception ex) {
-                                Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
-                                updateToolTip("Something wrong...");
-                                isProceedButtonEnabled(true);
-                            }
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            executor.submit(new excelchecker.CountryOrganizationShareholderProcessor.FilesProcessor(firstWorkerPath));
+                        } catch (IOException ex) {
+                            Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                    });
-                    workThread.start();
-                } catch (Exception ex) {
-                    Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                        executor.shutdown();
+                        try {
+                            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        try {
+                            saveCountryFiles();
+                        } catch (IOException ex) {
+                            Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        updateToolTip("Finished");
+                        isProceedButtonEnabled(true);
+                    }
+                }).start();
             }
         };
     }
