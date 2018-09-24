@@ -45,7 +45,7 @@ public abstract class TabObject extends JTabbedPane {
 
     protected String firstButtonInfoText;
     protected String secondButtonInfoText;
-    
+
     protected String toolTipStartText;
 
     protected boolean firstLabelInfoVisible;
@@ -64,8 +64,8 @@ public abstract class TabObject extends JTabbedPane {
             this.statusToolTipLabel.setText(text);
         }
     }
-    
-    protected void isProceedButtonEnabled(boolean value){
+
+    protected void isProceedButtonEnabled(boolean value) {
         this.buttonProceedFiles.setEnabled(value);
     }
 
@@ -78,10 +78,10 @@ public abstract class TabObject extends JTabbedPane {
 
         JLabel firstWorkerPathLabelTitle = new JLabel(firstLabelInfoPath);
         firstWorkerPathLabelTitle.setVisible(firstLabelInfoVisible);
-                
+
         JLabel secondWorkerPathLabelTitle = new JLabel(secondLabelInfoPath);
         secondWorkerPathLabelTitle.setVisible(secondLabelInfoVisible);
-        
+
         JLabel statusLabel = new JLabel("Status:");
 
         buttonChooseFirstWorkerFilesPath = new Button(firstButtonInfoText); // Create and add a Button
@@ -89,10 +89,11 @@ public abstract class TabObject extends JTabbedPane {
             public void actionPerformed(ActionEvent e) {
                 try {
                     File f = FilesHelper.selectFolder(parent);
-                    firstWorkerPath = f.getAbsolutePath();
-                    firstWorkerPathLabel.setText(FilesHelper.getFileNameLabelPath(f));
-                    updateToolTip("You can start process files");
-
+                    if (f != null) {
+                        firstWorkerPath = f.getAbsolutePath();
+                        firstWorkerPathLabel.setText(FilesHelper.getFileNameLabelPath(f));
+                        updateToolTip("You can start process files");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -105,9 +106,11 @@ public abstract class TabObject extends JTabbedPane {
             public void actionPerformed(ActionEvent e) {
                 try {
                     File f = FilesHelper.selectFolder(parent);
-                    secondWorkerPath = f.getAbsolutePath();
-                    secondWorkerPathLabel.setText(FilesHelper.getFileNameLabelPath(f));
-                    updateToolTip("You can start process files");
+                    if (f != null) {
+                        secondWorkerPath = f.getAbsolutePath();
+                        secondWorkerPathLabel.setText(FilesHelper.getFileNameLabelPath(f));
+                        updateToolTip("You can start process files");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, null, ex);
                 }

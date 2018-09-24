@@ -23,11 +23,10 @@ import javax.swing.JTabbedPane;
  * @param args the command line arguments
  */
 public class ExcelChecker extends JFrame {
-
     ExcelChecker() {
         super("ExcelChecker");
         setSize(600, 300);
-        setTitle("Excel checker v5.1");
+        setTitle("Excel checker v6.0");
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(new BorderLayout());

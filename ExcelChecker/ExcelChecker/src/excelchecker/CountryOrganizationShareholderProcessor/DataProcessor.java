@@ -42,10 +42,8 @@ class DataProcessor extends DataProcessorAbstract {
             this.excelFile = orgExcelFile;
             excelFileInStream = new FileInputStream(this.excelFile);
             excelWorkBook = new XSSFWorkbook(excelFileInStream);
+            excelWorkBook.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
             organisationFileDataSheet = excelWorkBook.getSheetAt(0);
-            if (organisationFileDataSheet == null) {
-                String test = "";
-            }
         }
     }
 
@@ -59,12 +57,13 @@ class DataProcessor extends DataProcessorAbstract {
             if (orgRow != null && !isCellEmpty(orgRow.getCell(2)) && orgRow.getRowNum() != 0) {
                 try {
                     String orgCellData = getCellData(orgRow.getCell(2));
-                    for (WorkbookModel workBookModel : FilesProcessor.countryDocFiles) {
+                    for (WorkbookModel workBookModel : CountryFilesHolder.countryDocFiles) {
                         Sheet countryFileDataSheet = workBookModel.workBookFile.getSheetAt(2);
                         for (Row countryRow : countryFileDataSheet) {
                             if (getCellData(countryRow.getCell(0)).contains(orgCellData) && countryRow.getRowNum() != 0) {
                                 dataFromBColumn = getCellData(countryRow.getCell(1));
                                 nameOfOrganisation = getCellData(countryRow.getCell(0));
+                                updateExcelFile(nameOfOrganisation, dataFromBColumn);
                                 break;
                             }
                         }
@@ -74,19 +73,21 @@ class DataProcessor extends DataProcessorAbstract {
                 }
             }
         }
+    }
 
-        for (WorkbookModel workBookModel : FilesProcessor.countryDocFiles) {
-            String countryName = excelFileName.split(" ")[0];
-            if (workBookModel.name.contains(countryName)) {
-                Sheet countryDocSheet = workBookModel.workBookFile.getSheetAt(1);
-                for (Row row : countryDocSheet) {
-                    if (getCellData(row.getCell(0)).contains(nameOfOrganisation) && row.getRowNum() != 0) {
-                        Cell cell = row.getCell(1);
-                        int test = 0;
-                        if (cell == null) {
-                            test = row.getRowNum();
+    private void updateExcelFile(String namaOfOrganization, String dataFromBColumn) {
+        synchronized (CountryFilesHolder.lock) {
+            if (namaOfOrganization != "") {
+                for (WorkbookModel workBookModel : CountryFilesHolder.countryDocFiles) {
+                    String countryName = excelFileName.split(" ")[0];
+                    if (workBookModel.name.contains(countryName)) {
+                        Sheet countryDocSheet = workBookModel.workBookFile.getSheetAt(1);
+                        for (Row row : countryDocSheet) {
+                            if (getCellData(row.getCell(0)).contains(namaOfOrganization) && row.getRowNum() != 0) {
+                                Cell cell = row.getCell(1);
+                                cell.setCellValue(dataFromBColumn);
+                            }
                         }
-                        cell.setCellValue(dataFromBColumn);
                     }
                 }
             }

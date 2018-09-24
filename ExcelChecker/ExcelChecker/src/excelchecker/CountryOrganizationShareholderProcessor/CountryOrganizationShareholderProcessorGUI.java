@@ -6,9 +6,13 @@
 package excelchecker.CountryOrganizationShareholderProcessor;
 
 import excelchecker.Abstract.TabObject;
+import excelchecker.Common.WorkbookModel;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +33,8 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
 
         firstLabelInfoVisible = true;
         secondLabelInfoVisible = false;
+        
+        new CountryFilesHolder();
     }
 
     @Override
@@ -47,6 +53,11 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                                     @Override
                                     public void run() {
                                         while (!workThread.isAlive()) {
+                                            try {
+                                                saveCountryFiles();
+                                            } catch (IOException ex) {
+                                                Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
                                             updateToolTip("Finished");
                                             isProceedButtonEnabled(true);
                                             break;
@@ -66,5 +77,14 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                 }
             }
         };
+    }
+    
+    private void saveCountryFiles() throws FileNotFoundException, IOException {
+        for (WorkbookModel countryDocFile : CountryFilesHolder.countryDocFiles) {
+            FileOutputStream fileOut = new FileOutputStream(countryDocFile.file.getAbsolutePath());
+            countryDocFile.workBookFile.write(fileOut);
+            countryDocFile.workBookFile.close();
+            fileOut.close();
+        }
     }
 }

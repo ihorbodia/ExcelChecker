@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  *
@@ -21,14 +20,12 @@ class FilesProcessor {
 
     String chosenFolderPath;
     String organizationFile;
-    static ArrayList<WorkbookModel> countryDocFiles;
+    
 
     public FilesProcessor(String chosenFolderPath) throws IOException {
         this.chosenFolderPath = chosenFolderPath;
-        countryDocFiles = new ArrayList<WorkbookModel>();
         initCountryDocFiles();
         proceedFiles();
-        saveCountryFiles();
     }
 
     private void proceedFiles() throws IOException {
@@ -45,14 +42,7 @@ class FilesProcessor {
         }
     }
 
-    private void saveCountryFiles() throws FileNotFoundException, IOException {
-        for (WorkbookModel countryDocFile : countryDocFiles) {
-            FileOutputStream fileOut = new FileOutputStream(countryDocFile.file.getAbsolutePath());
-            countryDocFile.workBookFile.write(fileOut);
-            countryDocFile.workBookFile.close();
-            fileOut.close();
-        }
-    }
+    
 
     private void initCountryDocFiles() throws FileNotFoundException, IOException {
         File dir = new File(chosenFolderPath);
@@ -69,7 +59,7 @@ class FilesProcessor {
                     if (docFiles.length > 1) {
                         return;
                     }
-                    countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
+                    CountryFilesHolder.countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
                 }
             }
         }
