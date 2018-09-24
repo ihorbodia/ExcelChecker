@@ -33,7 +33,13 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
 
         firstLabelInfoVisible = true;
         secondLabelInfoVisible = false;
-        
+
+        informationMessage = "For organisation shareholders only, not individual shareholders, "
+                + "the program gets \"ff\" or \"nff\" or \"insurance company\" "
+                + "from all country doc files, previous version, into the country "
+                + "doc files where it is missing. The goal is to reduce the organisation "
+                + "shareholder analysis work burden.";
+
         new CountryFilesHolder();
     }
 
@@ -78,7 +84,7 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
             }
         };
     }
-    
+
     private void saveCountryFiles() throws FileNotFoundException, IOException {
         for (WorkbookModel countryDocFile : CountryFilesHolder.countryDocFiles) {
             FileOutputStream fileOut = new FileOutputStream(countryDocFile.file.getAbsolutePath());

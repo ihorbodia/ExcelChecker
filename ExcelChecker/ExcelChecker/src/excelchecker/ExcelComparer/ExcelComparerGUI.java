@@ -36,6 +36,8 @@ public class ExcelComparerGUI extends TabObject {
 
         firstLabelInfoVisible = true;
         secondLabelInfoVisible = true;
+        
+        informationMessage = "The program compares 2 folders with country folders and Excel files in them. The files were done by 2 different freelancers. The program generates a \"report\" excel file to list the files where there are differences in columns A, B or C.";
     }
 
     @Override

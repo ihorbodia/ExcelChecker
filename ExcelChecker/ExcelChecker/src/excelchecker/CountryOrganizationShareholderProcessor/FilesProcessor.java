@@ -56,10 +56,9 @@ class FilesProcessor {
                             return name.contains("doc");
                         }
                     });
-                    if (docFiles.length > 1) {
-                        return;
+                    if (docFiles.length == 1) {
+                        CountryFilesHolder.countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
                     }
-                    CountryFilesHolder.countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
                 }
             }
         }

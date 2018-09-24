@@ -25,7 +25,7 @@ import javax.swing.JTabbedPane;
 public class ExcelChecker extends JFrame {
     ExcelChecker() {
         super("ExcelChecker");
-        setSize(600, 300);
+        setSize(600, 350);
         setTitle("Excel checker v6.0");
         setLocationRelativeTo(null);
         setResizable(false);

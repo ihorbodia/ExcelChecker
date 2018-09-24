@@ -29,6 +29,7 @@ public class ExcelSeparatorGUI extends TabObject {
         
         firstLabelInfoVisible = true;
         secondLabelInfoVisible = false;
+        informationMessage = "For nordic countries only (i.e. Denmark, Finland, Norway and Sweden), the program allocates the files done by freelancers to different folders: \"perfect\", \"to be checked\", and \"column C to be divided by 0\".";
     }
 
     @Override

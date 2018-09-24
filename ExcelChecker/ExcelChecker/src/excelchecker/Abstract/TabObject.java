@@ -23,7 +23,10 @@ import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -50,6 +53,8 @@ public abstract class TabObject extends JTabbedPane {
 
     protected boolean firstLabelInfoVisible;
     protected boolean secondLabelInfoVisible;
+    
+    protected String informationMessage;
 
     private JLabel statusToolTipLabel = new JLabel();
     JPanel controlsPanel;
@@ -143,10 +148,31 @@ public abstract class TabObject extends JTabbedPane {
         controlsPanel.add(buttonChooseSecondWorkerFilesPath);
         controlsPanel.add(new JPanel());
         controlsPanel.add(buttonProceedFiles);
-
-        mainPanel.add(contentPanel, BorderLayout.WEST);
-        mainPanel.add(controlsPanel);
-
+        
+        JPanel panel = new JPanel(new BorderLayout());
+        
+        JTextArea  jTextArea = new JTextArea ();
+        JScrollPane scroll = new JScrollPane(jTextArea);
+        jTextArea.setText(informationMessage);
+        jTextArea.setLineWrap(true);
+        jTextArea.setWrapStyleWord(true);
+        jTextArea.setOpaque(false);
+        jTextArea.setEditable(false);
+        
+        panel.add(scroll, BorderLayout.CENTER);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
+        contentPanel, panel);
+        splitPane.setDividerLocation(250);
+        splitPane.setResizeWeight(0.1);
+        splitPane.setEnabled(false);
+        splitPane.setContinuousLayout(true);
+        
+        JSplitPane vertSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, 
+        splitPane, controlsPanel);
+        vertSplit.setEnabled(false);
+        vertSplit.setResizeWeight(1.0);
+        
+        mainPanel.add(vertSplit, BorderLayout.CENTER);
         return mainPanel;
     }
 

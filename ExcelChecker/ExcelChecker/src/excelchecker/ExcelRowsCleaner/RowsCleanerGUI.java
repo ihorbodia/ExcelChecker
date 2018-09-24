@@ -37,6 +37,8 @@ public class RowsCleanerGUI extends TabObject {
 
         firstLabelInfoVisible = true;
         secondLabelInfoVisible = false;
+        
+        informationMessage = "For all shareholder files in a specific country folder, the program delete all rows with \"0\" in column B then saves the files.";
     }
 
     @Override

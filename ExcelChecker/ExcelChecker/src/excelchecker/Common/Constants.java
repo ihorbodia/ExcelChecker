@@ -10,6 +10,6 @@ package excelchecker.Common;
  * @author Ihor
  */
 public class Constants {
-    public static final int buttonWidth = 100;
+    public static final int buttonWidth = 80;
     public static final int buttonHeight = 25;
 }
