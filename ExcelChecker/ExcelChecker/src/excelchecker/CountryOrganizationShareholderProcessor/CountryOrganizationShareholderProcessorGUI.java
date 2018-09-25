@@ -27,6 +27,8 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
 
     Component parent;
     Thread workThread;
+    boolean isSuccessfully = true;
+    String errorMessage;
 
     public CountryOrganizationShareholderProcessorGUI() {
         firstLabelInfoPath = "Path to choosen folder:";
@@ -42,7 +44,7 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                 + "from all country doc files, previous version, into the country "
                 + "doc files where it is missing. The goal is to reduce the organisation "
                 + "shareholder analysis work burden.";
-
+        errorMessage = "";
         new CountryFilesHolder();
     }
 
@@ -53,33 +55,45 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
             public void actionPerformed(ActionEvent e) {
                 isProceedButtonEnabled(false);
                 updateToolTip("Processing...");
+                isSuccessfully = true;
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 new Thread(new Runnable() {
+                    FilesProcessor fp;
                     @Override
                     public void run() {
                         try {
-                            executor.submit(new excelchecker.CountryOrganizationShareholderProcessor.FilesProcessor(firstWorkerPath));
+                            fp = new excelchecker.CountryOrganizationShareholderProcessor.FilesProcessor(firstWorkerPath);
+                            executor.submit(fp);
                         } catch (IOException ex) {
+                            isSuccessfully = false;
+                            errorMessage = fp.errorMessage;
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            updateToolTip("Something wrong");
-                            isProceedButtonEnabled(true);
                         }
                         executor.shutdown();
                         try {
                             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
                         } catch (InterruptedException ex) {
+                            isSuccessfully = false;
+                            errorMessage = "Program interrupted";
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            updateToolTip("Something wrong");
-                            isProceedButtonEnabled(true);
                         }
                         try {
                             saveCountryFiles();
                         } catch (IOException ex) {
+                            isSuccessfully = false;
+                            errorMessage = "Problem with saving country doc files";
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            updateToolTip("Something wrong");
-                            isProceedButtonEnabled(true);
                         }
-                        updateToolTip("Finished");
+                        if (isSuccessfully) {
+                            updateToolTip("Finished");
+                        } else {
+                            if (errorMessage == "") {
+                                updateToolTip("Something wrong");
+                            }
+                            else{
+                                updateToolTip(errorMessage);
+                            }
+                        }
                         isProceedButtonEnabled(true);
                     }
                 }).start();

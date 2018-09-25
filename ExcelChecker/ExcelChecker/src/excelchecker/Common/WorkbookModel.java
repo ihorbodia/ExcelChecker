@@ -7,7 +7,6 @@ package excelchecker.Common;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -21,7 +20,7 @@ public class WorkbookModel {
     public String name;
     public File file;
     
-    public WorkbookModel(File workBookFile, String name) throws FileNotFoundException, IOException{
+    public WorkbookModel(File workBookFile, String name) throws IOException {
         this.workBookFile = new XSSFWorkbook(new FileInputStream(workBookFile));
         this.workBookFile.setMissingCellPolicy(Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
         this.name = name;

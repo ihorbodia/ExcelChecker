@@ -8,7 +8,6 @@ package excelchecker.CountryOrganizationShareholderProcessor;
 import excelchecker.Common.WorkbookModel;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -25,13 +24,14 @@ class FilesProcessor implements Runnable {
 
     String chosenFolderPath;
     String organizationFile;
+    String errorMessage;
 
     public FilesProcessor(String chosenFolderPath) throws IOException {
         this.chosenFolderPath = chosenFolderPath;
         initCountryDocFiles();
     }
 
-    private void initCountryDocFiles() throws FileNotFoundException, IOException {
+    private void initCountryDocFiles() {
         File dir = new File(chosenFolderPath);
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
@@ -44,10 +44,18 @@ class FilesProcessor implements Runnable {
                         }
                     });
                     if (docFiles.length == 1) {
-                        CountryFilesHolder.countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
+                        try {
+                            CountryFilesHolder.countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
+                        }
+                        catch (IOException ex) {
+                            errorMessage = "Problem with country doc file";
+                        }
                     }
                 }
             }
+        }
+        else {
+            errorMessage = "Something wrong with chosen folder";
         }
     }
 
@@ -61,13 +69,14 @@ class FilesProcessor implements Runnable {
             }
         });
 
-        ExecutorService executor = Executors.newCachedThreadPool();//creating a pool of 5 threads  
+        ExecutorService executor = Executors.newCachedThreadPool(); 
         for (File orgFile : orgFiles) {
             Runnable worker = null;
             try {
                 worker = new excelchecker.CountryOrganizationShareholderProcessor.DataProcessor(orgFile);
             } catch (IOException ex) {
                 Logger.getLogger(FilesProcessor.class.getName()).log(Level.SEVERE, null, ex);
+                errorMessage = "Something wrong with organisation shareholder file: "+ orgFile.getName();
             }
             executor.execute(worker);
         }
@@ -76,7 +85,7 @@ class FilesProcessor implements Runnable {
         try {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
-
+            errorMessage = "Program interrupted";
         }
     }
 }
