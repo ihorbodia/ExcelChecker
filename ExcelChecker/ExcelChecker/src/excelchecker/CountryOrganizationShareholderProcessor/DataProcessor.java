@@ -12,8 +12,10 @@ import excelchecker.Common.WorkbookModel;
 import excelchecker.ExcelChecker;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,8 +54,10 @@ class DataProcessor extends DataProcessorAbstract {
         String dataFromBColumn = "";
         String nameOfOrganisation = "";
         Iterator<Row> rowIterator = organisationFileDataSheet.rowIterator();
+        ArrayList<Row> rowsForDelete = new ArrayList<Row>();
+        Row orgRow = null;
         while (rowIterator.hasNext()) {
-            Row orgRow = rowIterator.next();
+            orgRow = rowIterator.next();
             if (orgRow != null && !isCellEmpty(orgRow.getCell(2)) && orgRow.getRowNum() != 0) {
                 try {
                     String orgCellData = getCellData(orgRow.getCell(2));
@@ -64,6 +68,7 @@ class DataProcessor extends DataProcessorAbstract {
                                 dataFromBColumn = getCellData(countryRow.getCell(1));
                                 nameOfOrganisation = getCellData(countryRow.getCell(0));
                                 updateExcelFile(nameOfOrganisation, dataFromBColumn);
+                                rowsForDelete.add(orgRow);
                                 break;
                             }
                         }
@@ -73,11 +78,22 @@ class DataProcessor extends DataProcessorAbstract {
                 }
             }
         }
+        for (Row rowToDelete : rowsForDelete) {
+            rowToDelete.getCell(0).setCellValue("");
+            rowToDelete.getCell(1).setCellValue("");
+            rowToDelete.getCell(2).setCellValue("");
+            rowToDelete.getCell(3).setCellValue("");
+        }
+
+        FileOutputStream outputStream = new FileOutputStream(excelFile.getAbsolutePath());
+        excelWorkBook.write(outputStream);
+        excelWorkBook.close();
+        outputStream.close();
     }
 
     private void updateExcelFile(String namaOfOrganization, String dataFromBColumn) {
         synchronized (CountryFilesHolder.lock) {
-            if (namaOfOrganization != "") {
+            if (namaOfOrganization != "" && dataFromBColumn != "") {
                 for (WorkbookModel workBookModel : CountryFilesHolder.countryDocFiles) {
                     String countryName = excelFileName.split(" ")[0];
                     if (workBookModel.name.contains(countryName)) {
@@ -86,6 +102,7 @@ class DataProcessor extends DataProcessorAbstract {
                             if (getCellData(row.getCell(0)).contains(namaOfOrganization) && row.getRowNum() != 0) {
                                 Cell cell = row.getCell(1);
                                 cell.setCellValue(dataFromBColumn);
+                                return;
                             }
                         }
                     }

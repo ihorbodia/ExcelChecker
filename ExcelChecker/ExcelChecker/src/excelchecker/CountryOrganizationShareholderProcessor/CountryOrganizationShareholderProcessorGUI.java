@@ -61,17 +61,23 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                             executor.submit(new excelchecker.CountryOrganizationShareholderProcessor.FilesProcessor(firstWorkerPath));
                         } catch (IOException ex) {
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            updateToolTip("Something wrong");
+                            isProceedButtonEnabled(true);
                         }
                         executor.shutdown();
                         try {
                             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            updateToolTip("Something wrong");
+                            isProceedButtonEnabled(true);
                         }
                         try {
                             saveCountryFiles();
                         } catch (IOException ex) {
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            updateToolTip("Something wrong");
+                            isProceedButtonEnabled(true);
                         }
                         updateToolTip("Finished");
                         isProceedButtonEnabled(true);

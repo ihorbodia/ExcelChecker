@@ -8,6 +8,7 @@ package excelchecker.CountryOrganizationShareholderProcessor;
 import excelchecker.Common.WorkbookModel;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -28,11 +29,6 @@ class FilesProcessor implements Runnable {
     public FilesProcessor(String chosenFolderPath) throws IOException {
         this.chosenFolderPath = chosenFolderPath;
         initCountryDocFiles();
-        proceedFiles();
-    }
-
-    private void proceedFiles() throws IOException {
-
     }
 
     private void initCountryDocFiles() throws FileNotFoundException, IOException {
@@ -69,18 +65,18 @@ class FilesProcessor implements Runnable {
         for (File orgFile : orgFiles) {
             Runnable worker = null;
             try {
-                worker = new Thread(new excelchecker.CountryOrganizationShareholderProcessor.DataProcessor(orgFile));
+                worker = new excelchecker.CountryOrganizationShareholderProcessor.DataProcessor(orgFile);
             } catch (IOException ex) {
                 Logger.getLogger(FilesProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
-            executor.execute(worker);//calling execute method of ExecutorService 
+            executor.execute(worker);
         }
         executor.shutdown();
 
         try {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
-            
+
         }
     }
 }

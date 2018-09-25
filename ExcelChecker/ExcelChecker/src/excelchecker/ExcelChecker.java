@@ -26,7 +26,7 @@ public class ExcelChecker extends JFrame {
     ExcelChecker() {
         super("ExcelChecker");
         setSize(600, 350);
-        setTitle("Excel checker v6.0");
+        setTitle("Excel checker v6.1");
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(new BorderLayout());
