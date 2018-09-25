@@ -7,7 +7,6 @@ package excelchecker.CountryOrganizationShareholderProcessor;
 
 import excelchecker.Common.WorkbookModel;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -28,10 +27,9 @@ class FilesProcessor implements Runnable {
 
     public FilesProcessor(String chosenFolderPath) throws IOException {
         this.chosenFolderPath = chosenFolderPath;
-        initCountryDocFiles();
     }
 
-    private void initCountryDocFiles() {
+    public void initCountryDocFiles() {
         File dir = new File(chosenFolderPath);
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
@@ -40,15 +38,17 @@ class FilesProcessor implements Runnable {
                     File[] docFiles = countryDirectory.listFiles(new FilenameFilter() {
                         @Override
                         public boolean accept(File dir, String name) {
-                            return name.contains("doc");
+                            return name.contains("doc.xlsx");
                         }
                     });
                     if (docFiles.length == 1) {
                         try {
                             CountryFilesHolder.countryDocFiles.add(new WorkbookModel(docFiles[0], docFiles[0].getName()));
+                            System.out.println("INFO: Docfile initialized: "+docFiles[0].getName());
                         }
                         catch (IOException ex) {
-                            errorMessage = "Problem with country doc file";
+                            System.out.println("ERROR: Problem with docfile: " + docFiles[0].getName());
+                            errorMessage = "ERROR: Problem with country doc file";
                         }
                     }
                 }
@@ -56,6 +56,7 @@ class FilesProcessor implements Runnable {
         }
         else {
             errorMessage = "Something wrong with chosen folder";
+            System.out.println("ERROR: Something wrong with chosen folder: " + chosenFolderPath);
         }
     }
 
@@ -65,7 +66,9 @@ class FilesProcessor implements Runnable {
         File[] orgFiles = dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.contains("organisation shareholder analysis to do");
+                return name.contains("organisation shareholder analysis to do") 
+                        && !name.contains("Copie") 
+                        && !name.split("\\s+")[0].contains("old");
             }
         });
 
@@ -77,6 +80,7 @@ class FilesProcessor implements Runnable {
             } catch (IOException ex) {
                 Logger.getLogger(FilesProcessor.class.getName()).log(Level.SEVERE, null, ex);
                 errorMessage = "Something wrong with organisation shareholder file: "+ orgFile.getName();
+                System.out.println("ERROR: Something wrong with organisation shareholder file: " + orgFile.getName());
             }
             executor.execute(worker);
         }
@@ -86,6 +90,7 @@ class FilesProcessor implements Runnable {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             errorMessage = "Program interrupted";
+            System.out.println("ERROR: Program interrupted");
         }
     }
 }

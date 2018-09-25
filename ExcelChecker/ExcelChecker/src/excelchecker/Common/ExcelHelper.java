@@ -5,11 +5,16 @@
  */
 package excelchecker.Common;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
+import java.util.ArrayList;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
@@ -17,6 +22,8 @@ import static org.apache.poi.ss.usermodel.CellType.STRING;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.NumberToTextConverter;
 
 /**
@@ -84,5 +91,35 @@ public final class ExcelHelper {
             }
         }
         return null;
+    }
+
+    public static void removeEmptyRows(File file, ArrayList<Row> rows) throws IOException {
+        if (rows.size() > 0) {
+            Workbook wb = WorkbookFactory.create(file);
+            Sheet sheet = wb.getSheetAt(0);
+            for (Row row : rows) {
+                if (getCellData(row.getCell(0)).trim().equals("")) {
+                    removeRow(sheet, row.getRowNum());
+                }
+            }
+            File sfile = new File(file.getAbsolutePath());
+            OutputStream out = new FileOutputStream(sfile);
+            wb.write(out);
+            out.flush();
+            out.close();
+        }
+    }
+
+    private static void removeRow(Sheet sheet, int rowIndex) {
+        int lastRowNum = sheet.getLastRowNum();
+        if (rowIndex >= 0 && rowIndex < lastRowNum) {
+            sheet.shiftRows(rowIndex + 1, lastRowNum, -1);
+        }
+        if (rowIndex == lastRowNum) {
+            Row removingRow = sheet.getRow(rowIndex);
+            if (removingRow != null) {
+                sheet.removeRow(removingRow);
+            }
+        }
     }
 }

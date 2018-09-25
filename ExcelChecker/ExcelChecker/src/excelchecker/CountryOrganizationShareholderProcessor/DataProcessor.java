@@ -6,6 +6,7 @@
 package excelchecker.CountryOrganizationShareholderProcessor;
 
 import excelchecker.Abstract.DataProcessorAbstract;
+import excelchecker.Common.ExcelHelper;
 import static excelchecker.Common.ExcelHelper.getCellData;
 import static excelchecker.Common.ExcelHelper.isCellEmpty;
 import excelchecker.Common.WorkbookModel;
@@ -75,6 +76,7 @@ class DataProcessor extends DataProcessorAbstract {
                     }
                 } catch (IllegalStateException ex) {
                     Logger.getLogger(ExcelChecker.class.getName()).log(Level.SEVERE, "Something wrong in proceedFiles method.", ex);
+                    System.out.println("ERROR: Problem with proceedFiles in data processor while processing: "+ excelFile.getName());
                 }
             }
         }
@@ -84,11 +86,13 @@ class DataProcessor extends DataProcessorAbstract {
             rowToDelete.getCell(2).setCellValue("");
             rowToDelete.getCell(3).setCellValue("");
         }
-
+        System.out.println("INFO: File have been processed: "+ excelFile.getName());
         FileOutputStream outputStream = new FileOutputStream(excelFile.getAbsolutePath());
         excelWorkBook.write(outputStream);
         excelWorkBook.close();
         outputStream.close();
+        
+        //ExcelHelper.removeEmptyRows(excelFile, rowsForDelete); TODO: Fix and deploy
     }
 
     private void updateExcelFile(String namaOfOrganization, String dataFromBColumn) {

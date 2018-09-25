@@ -57,16 +57,21 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                 updateToolTip("Processing...");
                 isSuccessfully = true;
                 ExecutorService executor = Executors.newSingleThreadExecutor();
+                System.out.println("INFO: Start...");
                 new Thread(new Runnable() {
                     FilesProcessor fp;
+
                     @Override
                     public void run() {
                         try {
+                            System.out.println("INFO: Chosen path: " + firstWorkerPath);
                             fp = new excelchecker.CountryOrganizationShareholderProcessor.FilesProcessor(firstWorkerPath);
+                            fp.initCountryDocFiles();
                             executor.submit(fp);
                         } catch (IOException ex) {
                             isSuccessfully = false;
                             errorMessage = fp.errorMessage;
+                            System.out.println("ERROR: Error while initializing file processor, path: " + firstWorkerPath);
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         executor.shutdown();
@@ -75,6 +80,7 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                         } catch (InterruptedException ex) {
                             isSuccessfully = false;
                             errorMessage = "Program interrupted";
+                            System.out.println("ERROR: Program interrupted");
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         try {
@@ -82,15 +88,16 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                         } catch (IOException ex) {
                             isSuccessfully = false;
                             errorMessage = "Problem with saving country doc files";
+                            System.out.println("ERROR: Problem with saving country doc files");
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         if (isSuccessfully) {
                             updateToolTip("Finished");
+                            System.out.println("Finished");
                         } else {
                             if (errorMessage == "") {
                                 updateToolTip("Something wrong");
-                            }
-                            else{
+                            } else {
                                 updateToolTip(errorMessage);
                             }
                         }
