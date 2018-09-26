@@ -73,6 +73,11 @@ public class CountryOrganizationShareholderProcessorGUI extends TabObject {
                             errorMessage = fp.errorMessage;
                             System.out.println("ERROR: Error while initializing file processor, path: " + firstWorkerPath);
                             Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (OutOfMemoryError e) {
+                            isSuccessfully = false;
+                            errorMessage = "Out of memory error";
+                            System.out.println("ERROR: Out of memory error");
+                            Logger.getLogger(CountryOrganizationShareholderProcessorGUI.class.getName()).log(Level.SEVERE, null, e);
                         }
                         executor.shutdown();
                         try {
